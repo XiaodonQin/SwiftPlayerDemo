@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_main_content_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/default_padding"
+    android:layout_marginLeft="@dimen/default_padding"
+    android:layout_marginRight="@dimen/default_padding"
+    android:background="@color/item_bar_bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView android:id="@+id/item_title_bar_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/default_padding"
+            android:src="@mipmap/ic_hot" />
+
+        <TextView android:id="@+id/item_title_bar_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/default_padding"
+            android:paddingRight="@dimen/default_padding"
+            android:paddingTop="@dimen/default_padding"
+            android:text="@string/item_recommend_text"
+            android:textSize="@dimen/item_bar_title_size"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/default_padding_1">
+
+        <LinearLayout android:id="@+id/item_content_layout_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/default_padding"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/item_content_card_1"
+                android:layout_width="@dimen/item_content_width"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:foreground="?selectableItemBackground">
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/item_content_drawee_view_1"
+                    android:layout_width="@dimen/item_content_width"
+                    android:layout_height="@dimen/item_content_height"
+                    fresco:actualImageScaleType="focusCrop"
+                    fresco:backgroundImage="@mipmap/default_poster"
+                    fresco:fadeDuration="300"
+                    fresco:failureImage="@mipmap/default_poster"
+                    fresco:failureImageScaleType="centerInside"
+                    fresco:placeholderImage="@mipmap/default_poster"
+                    fresco:placeholderImageScaleType="fitCenter" />
+            </android.support.v7.widget.CardView>
+
+            <TextView
+                android:id="@+id/item_content_name_1"
+                android:layout_width="@dimen/item_content_width"
+                android:layout_height="wrap_content"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/item_content_layout_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/default_padding"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/item_content_card_2"
+                android:layout_width="@dimen/item_content_width"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:foreground="?selectableItemBackground">
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/item_content_drawee_view_2"
+                    android:layout_width="@dimen/item_content_width"
+                    android:layout_height="@dimen/item_content_height"
+                    fresco:actualImageScaleType="focusCrop"
+                    fresco:backgroundImage="@mipmap/default_poster"
+                    fresco:fadeDuration="300"
+                    fresco:failureImage="@mipmap/default_poster"
+                    fresco:failureImageScaleType="centerInside"
+                    fresco:placeholderImage="@mipmap/default_poster"
+                    fresco:placeholderImageScaleType="fitCenter" />
+            </android.support.v7.widget.CardView>
+
+            <TextView
+                android:id="@+id/item_content_name_2"
+                android:layout_width="@dimen/item_content_width"
+                android:layout_height="wrap_content"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/item_content_layout_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/item_content_card_3"
+                android:layout_width="@dimen/item_content_width"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:foreground="?selectableItemBackground">
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/item_content_drawee_view_3"
+                    android:layout_width="@dimen/item_content_width"
+                    android:layout_height="@dimen/item_content_height"
+                    fresco:actualImageScaleType="focusCrop"
+                    fresco:backgroundImage="@mipmap/default_poster"
+                    fresco:fadeDuration="300"
+                    fresco:failureImage="@mipmap/default_poster"
+                    fresco:failureImageScaleType="centerInside"
+                    fresco:placeholderImage="@mipmap/default_poster"
+                    fresco:placeholderImageScaleType="fitCenter" />
+            </android.support.v7.widget.CardView>
+
+            <TextView
+                android:id="@+id/item_content_name_3"
+                android:layout_width="@dimen/item_content_width"
+                android:layout_height="wrap_content"
+                android:singleLine="true" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

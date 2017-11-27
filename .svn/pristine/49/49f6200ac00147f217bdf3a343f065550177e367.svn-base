@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/card_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/margin_card"
+        android:layout_marginRight="@dimen/margin_card"
+        android:layout_marginLeft="@dimen/margin_card"
+        android:layout_marginBottom="@dimen/margin_bottom_card"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/crash_button"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Force Crash!"
+            android:onClick="forceCrash"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,244 @@
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2016/3/15.
+ */
+package sg.com.conversant.swiftplayer.utils;
+
+import android.app.Activity;
+import android.content.res.Configuration;
+import android.os.Build;
+import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.facebook.drawee.view.SimpleDraweeView;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import sg.com.conversant.swiftplayer.R;
+import sg.com.conversant.swiftplayer.mvp.GlideApp;
+import sg.com.conversant.swiftplayer.sdk.API;
+
+/**
+ * TODO
+ *
+ * @author Xiaodong
+ */
+public class Utils {
+
+    public static boolean hasIcecreamSandwich() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+    }
+
+    public static String stringForTime(long millis) {
+        int totalSeconds = (int) millis / 1000;
+        int seconds = totalSeconds % 60;
+        int minutes = (totalSeconds / 60) % 60;
+        int hours = totalSeconds / 3600;
+        if (hours > 0) {
+            return String.format("%d:%02d:%02d", hours, minutes, seconds).toString();
+        } else {
+            return String.format("%02d:%02d", minutes, seconds).toString();
+        }
+    }
+
+    public static void displayDPI(Activity context) {
+        DisplayMetrics metric = new DisplayMetrics();
+        context.getWindowManager().getDefaultDisplay().getMetrics(metric);
+        int width = metric.widthPixels;  // 屏幕宽度（像素）
+        int height = metric.heightPixels;  // 屏幕高度（像素）
+        float density = metric.density;  // 屏幕密度（0.75 / 1.0 / 1.5）
+        float fontScale = metric.scaledDensity; //font density
+        int densityDpi = metric.densityDpi;  // 屏幕密度DPI（120 / 160 / 240）
+
+        L.i(" Screen width: " + String.valueOf(width) +
+                " height: " + String.valueOf(height) + " density: " + String.valueOf(density) + " fontDensity: " + String.valueOf(fontScale) +
+                " densityDpi " + String.valueOf(densityDpi));
+    }
+
+    public static int getScreenOrientation(Activity activity) {
+        Display getOrient = activity.getWindowManager().getDefaultDisplay();
+        int orientation = Configuration.ORIENTATION_UNDEFINED;
+        if (getOrient.getWidth() == getOrient.getHeight()) {
+            orientation = Configuration.ORIENTATION_SQUARE;
+        } else {
+            if (getOrient.getWidth() < getOrient.getHeight()) {
+                orientation = Configuration.ORIENTATION_PORTRAIT;
+            } else {
+                orientation = Configuration.ORIENTATION_LANDSCAPE;
+            }
+        }
+        return orientation;
+    }
+
+    public static void setContentItemTitleBar(int tag, ImageView icon, TextView name) {
+        switch (tag) {
+            case API.TAG.TAG_RECOMMEND:
+                icon.setImageResource(R.mipmap.ic_hot);
+                name.setText(R.string.item_recommend_text);
+                break;
+
+            case API.TAG.TAG_SERIES:
+                icon.setImageResource(R.mipmap.ic_series);
+                name.setText(R.string.category_series_text);
+                break;
+
+            case API.TAG.TAG_MOVIE:
+                icon.setImageResource(R.mipmap.ic_movie);
+                name.setText(R.string.category_movie_text);
+                break;
+
+            case API.TAG.TAG_LIVE:
+                icon.setImageResource(R.mipmap.ic_live);
+                name.setText(R.string.category_live_text);
+                break;
+
+            case API.TAG.TAG_MUSIC:
+                icon.setImageResource(R.mipmap.ic_music);
+                name.setText(R.string.category_music_text);
+                break;
+        }
+    }
+
+    public static String getUserAgent() {
+        return Build.MODEL;
+    }
+
+    public static String getDevice() {
+        return Build.DEVICE;
+    }
+
+    public static String getDeviceBrand() {
+        return Build.BRAND;
+    }
+
+    public static String getAndroidVersionName() {
+        return "Android"
+                + android.os.Build.VERSION.RELEASE;
+    }
+
+    public static String getPublishedTime(long timeStamp, Activity context) {
+        long gapTime = System.currentTimeMillis() - timeStamp;
+
+        long minute = 1000 * 60;
+        long hour = minute * 60;
+        long day = hour * 24;
+        long month = day * 30;
+
+        if (gapTime <= minute) {
+            return context.getResources().getString(R.string.default_publish_time);
+        } else if (gapTime > minute && gapTime <= hour) {
+            long time = gapTime / minute;
+            return context.getResources().getString(R.string.publish_time_minute_ago, time);
+        } else if (gapTime > hour && gapTime <= day) {
+            long time = gapTime / hour;
+            return context.getResources().getString(R.string.publish_time_hours_ago, time);
+        } else if (gapTime > day && gapTime <= month) {
+            long time = gapTime / day;
+            return context.getResources().getString(R.string.publish_time_days_ago, time);
+        }
+
+        return getFormatTime(timeStamp);
+    }
+
+    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+
+    public static String getFormatTime(long lTime) {
+        if (lTime <= 0) {
+            return "";
+        }
+        return sdf.format(new Date(lTime));
+    }
+
+    public static Fragment getFragment(String fragmentName) {
+        Fragment fragment = null;
+        try {
+            fragment = (Fragment) (Class
+                    .forName(fragmentName).newInstance());
+
+            if (fragment == null) {
+                return null;
+            }
+        } catch (InstantiationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
+        return fragment;
+    }
+
+    public static String formatZhihuDailyDateLongToString(long date) {
+        String sDate;
+        Date d = new Date(date + 24 * 60 * 60 * 1000);
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        sDate = format.format(d);
+
+        return sDate;
+    }
+
+    public static String formatZhihuDailyDateLongToStringCurrent(long date) {
+        String sDate;
+        Date d = new Date(date);
+        SimpleDateFormat format = new SimpleDateFormat("MM" + "月" + "dd" + "日" + " EEEE");
+        sDate = format.format(d);
+
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("GMT+08"));
+        d.setTime(c.getTimeInMillis());
+        String cDate;//current date
+        cDate = format.format(d);
+
+
+        return sDate.equals(cDate) ? "今日新闻" : sDate;
+    }
+
+    public static long formatZhihuDailyDateStringToLong(String date) {
+        Date d = null;
+        try {
+            d = new SimpleDateFormat("yyyyMMdd").parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return d == null ? 0 : d.getTime();
+    }
+
+    public static void showPosterWithGlide(String url, ImageView imageView) {
+        GlideApp.with(imageView.getContext())
+                .load(url)
+                .placeholder(R.mipmap.default_poster)
+                .centerCrop()
+                .into(imageView);
+    }
+
+    public static void showPosterWithGlide(int resId, ImageView imageView) {
+        GlideApp.with(imageView.getContext())
+                .load(resId)
+                .placeholder(R.mipmap.default_poster)
+                .centerCrop()
+                .into(imageView);
+    }
+
+    public static void showThumbnailWithGlide(String url, ImageView imageView) {
+        GlideApp.with(imageView.getContext())
+                .load(url)
+                .placeholder(R.mipmap.default_thumbnail)
+                .centerCrop()
+                .into(imageView);
+    }
+}

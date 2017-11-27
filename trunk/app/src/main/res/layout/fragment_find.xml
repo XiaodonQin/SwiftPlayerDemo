@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/default_padding"
+        android:layout_marginLeft="@dimen/default_padding"
+        android:layout_marginRight="@dimen/default_padding"
+        android:layout_marginTop="@dimen/default_padding"
+        android:orientation="vertical">
+
+        <com.blunderer.materialdesignlibrary.views.CardView
+            android:id="@+id/cardview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/default_padding"
+            app:mdl_description="A Basic CardView"
+            app:mdl_highlightButton="Highlight"
+            app:mdl_imagePosition="none"
+            app:mdl_normalButton="Normal"
+            app:mdl_title="CardView" />
+
+        <com.blunderer.materialdesignlibrary.views.CardView
+            android:id="@+id/cardview_left"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/default_padding"
+            app:mdl_description="A Left Image CardView"
+            app:mdl_highlightButton="Highlight"
+            app:mdl_image="@mipmap/cardview_image_left"
+            app:mdl_imagePosition="left"
+            app:mdl_normalButton="Normal"
+            app:mdl_title="CardView" />
+
+        <com.blunderer.materialdesignlibrary.views.CardView
+            android:id="@+id/cardview_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:mdl_description="A Top Image CardView"
+            app:mdl_highlightButton="Highlight"
+            app:mdl_image="@mipmap/cardview_image_top"
+            app:mdl_imagePosition="top"
+            app:mdl_normalButton="Normal"
+            app:mdl_title="CardView" />
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>

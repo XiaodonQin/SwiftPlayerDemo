@@ -1,0 +1,98 @@
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2017/8/16.
+ */
+package sg.com.conversant.swiftplayer.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.view.MenuItem;
+
+
+import sg.com.conversant.swiftplayer.R;
+import sg.com.conversant.swiftplayer.fragment.CustomFeedbackFragment;
+import sg.com.conversant.swiftplayer.feedback.ErrorResponse;
+import sg.com.conversant.swiftplayer.feedback.SubmissionListener;
+
+/**
+ * TODO
+ *
+ * @author Xiaodong
+ */
+public class CustomFeedbackActivity extends NetworkAwareActionbarActivity {
+    private static final String LOG_TAG = "CustomFeedbackActivity";
+    private static final String FRAGMENT_TAG = CustomFeedbackActivity.class.getSimpleName();
+    private CustomFeedbackFragment contactFeedbackFragment;
+    private final SubmissionListener mSubmissionListener = new SubmissionListener() {
+        public void onSubmissionStarted() {
+        }
+
+        public void onSubmissionCompleted() {
+            CustomFeedbackActivity.this.setResult(-1, new Intent());
+            CustomFeedbackActivity.this.finish();
+        }
+
+        public void onSubmissionCancel() {
+        }
+
+        public void onSubmissionError(ErrorResponse errorResponse) {
+            CustomFeedbackActivity.this.setResult(0, CustomFeedbackActivity.this.getErrorIntent(errorResponse));
+        }
+    };
+
+    public CustomFeedbackActivity() {
+    }
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_custom_feedback);
+
+        FragmentManager fragmentManager1 = this.getSupportFragmentManager();
+        Fragment fragment = fragmentManager1.findFragmentByTag(FRAGMENT_TAG);
+        if(fragment != null && fragment instanceof CustomFeedbackFragment) {
+            this.contactFeedbackFragment = (CustomFeedbackFragment) fragment;
+        } else {
+            this.contactFeedbackFragment = CustomFeedbackFragment.newInstance();
+            FragmentTransaction fragmentTransaction = fragmentManager1.beginTransaction();
+            fragmentTransaction.add(R.id.activity_custom_feedback_root, this.contactFeedbackFragment, FRAGMENT_TAG);
+            fragmentTransaction.commit();
+        }
+
+        this.contactFeedbackFragment.setFeedbackListener(this.mSubmissionListener);
+    }
+
+    private Intent getErrorIntent(ErrorResponse errorResponse) {
+        Intent intent = new Intent();
+        intent.putExtra("extra_is_nw_error", errorResponse.isNetworkError());
+        intent.putExtra("extra_error_reason", errorResponse.getReason());
+        intent.putExtra("extra_status_code", errorResponse.getStatus());
+        return intent;
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == 16908332) {
+            this.onBackPressed();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void onNetworkAvailable() {
+        super.onNetworkAvailable();
+        this.contactFeedbackFragment.onNetworkAvailable();
+    }
+
+    public void onNetworkUnavailable() {
+        super.onNetworkUnavailable();
+        this.contactFeedbackFragment.onNetworkUnavailable();
+    }
+}

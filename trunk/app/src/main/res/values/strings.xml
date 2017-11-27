@@ -1,0 +1,274 @@
+<resources>
+    <string name="app_name">SwiftPlayer</string>
+
+    <string name="bullet_text">Bullet</string>
+
+    <string name="default_current_time">--</string>
+    <string name="default_total_time">--</string>
+
+    <string name="item_recommend_text">猜你喜欢</string>
+
+    <string name="category_hot_text">热播</string>
+    <string name="category_series_text">电视剧</string>
+    <string name="category_movie_text">电影</string>
+    <string name="category_live_text">直播</string>
+    <string name="category_music_text">音乐</string>
+
+    <string name="tab_market">商城</string>
+    <string name="tab_book">书架</string>
+    <string name="tab_game">游戏</string>
+    <string name="tab_paopao">泡泡</string>
+    <string name="tab_activity">活动</string>
+
+    <string name="default_watch_count">324,795次观看</string>
+    <string name="default_good_count">1万</string>
+    <string name="default_bad_count">972</string>
+
+    <string name="guess_you_like_title">猜你喜欢</string>
+    <string name="comment_title">评论</string>
+    <string name="hint_comment">我来评论&#8230;</string>
+
+    <string name="no_network">请检查您的网络</string>
+    <string name="floor_text">%1$s 楼</string>
+    <string name="device_model_text">来自 %1$s</string>
+
+    <string name="default_anonymous_user">匿名用户</string>
+    <string name="default_reply">回复 %1$s: </string>
+    <string name="cancel_reply">取消回复</string>
+
+    <string name="video_reload">重播</string>
+    <string name="default_publish_time">刚刚</string>
+    <string name="publish_time_minute_ago">%1$s分钟前</string>
+    <string name="publish_time_hours_ago">%1$s小时前</string>
+    <string name="publish_time_days_ago">%1$s天前</string>
+    <string name="publish_time_month_ago">%1$s月前</string>
+    <string name="publish_time_year_ago">%1$s年前</string>
+
+    <string name="bottom_navi_recommend">推荐</string>
+    <string name="bottom_navi_category">导航</string>
+    <string name="bottom_navi_find">发现</string>
+    <string name="bottom_navi_my">我的</string>
+
+    <string name="my_login_prompt">点击登录</string>
+    <string name="my_vip_text">VIP黄金套餐</string>
+    <string name="my_message_text">消息</string>
+    <string name="my_offline_text">离线下载</string>
+    <string name="my_watch_history_text">播放历史</string>
+    <string name="open_source_text">GitHub</string>
+    <string name="my_setting_text">设置</string>
+    <string name="my_about_text">关于</string>
+    <string name="doorbell_feedback_text">Doorbell Feedback</string>
+    <string name="zendesk_feedback_text">Zendesk Feedback</string>
+    <string name="custom_feedback_text">Custom Feedback</string>
+    <string name="version">Version  %1$s</string>
+    <string name="title_activity_login">登录</string>
+    <string name="my_profile_title">我的信息</string>
+    <string name="test_title">测试页面</string>
+
+    <string name="change_password">修改密码</string>
+    <string name="logout">退出登录</string>
+    <string name="logout_prompt">确定要退出登录吗？</string>
+    <string name="logout_cancel">取消</string>
+    <string name="logout_ok">确定</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">账号</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="error_invalid_email">账号无效！</string>
+    <string name="error_invalid_password">密码太短</string>
+    <string name="error_incorrect_password">密码错误</string>
+    <string name="error_field_required">此区域必须填写</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+
+    <string name="prompt_server_url">Server URL</string>
+    <string name="action_save">保存</string>
+    <string name="save_server_success">Server重新配置成功</string>
+    <string name="error_invalid_web">地址无效！</string>
+
+    <string name="tab_home">首页</string>
+    <string name="tab_series">电视剧</string>
+    <string name="tab_movie">电影</string>
+    <string name="tab_variety">综艺</string>
+    <string name="tab_physical">体育</string>
+    <string name="tab_music">音乐</string>
+    <string name="tab_news">资讯</string>
+    <string name="tab_live">直播</string>
+    <string name="tab_cartoon">动漫</string>
+    <string name="tab_bbc">记录片</string>
+    <string name="tab_games">游戏</string>
+    <string name="tab_car">汽车</string>
+    <string name="tab_life">生活</string>
+    <string name="tab_girl">女性</string>
+    <string name="tab_love">公益</string>
+    <string name="tab_baby">幼儿</string>
+    <string name="tab_stock">股市</string>
+
+    <string name="settings">设置</string>
+    <string name="help">应用权限</string>
+    <string name="string_help_text">在设置-应用-SwiftPlayer-权限中开启权限，以正常使用功能</string>
+    <string name="quit">取消</string>
+
+    <string name="bellow_title_text">看 见 好 时 光</string>
+    <string name="all_rights">©2016 Johnny Qin, all rights reserved</string>
+
+    <string name="exit_prompt">再按一次将退出SwiftPlayer</string>
+    <string name="about_library">About Library</string>
+
+    <string name="tab_recommend">推荐</string>
+    <string name="tab_filter">筛选</string>
+
+    <string name="search_title">搜索</string>
+    <string name="notification_title">消息</string>
+
+    <string name="search_hint">欢乐颂</string>
+    <string name="search_history_title">搜索记录</string>
+    <string name="search_history_empty">清空记录</string>
+    <string name="search_hot_title">热门搜索</string>
+
+    <!-- library -->
+    <string name="library_fresco_name">Fresco</string>
+    <string name="library_fresco_author">facebook</string>
+    <string name="library_fresco_description">Fresco is a powerful system for displaying images in Android applications.
+        \n\nFresco takes care of image loading and display, so you don\'t have to. It will load images from the network, local storage, or local resources, and display a placeholder until the image has arrived. It has two levels of cache; one in memory and another in internal storage.</string>
+    <string name="library_fresco_version">0.8.1</string>
+    <string name="library_fresco_website">https://github.com/facebook/fresco</string>
+    <string name="library_viewpagerindicator_name">viewpagerindicator</string>
+    <string name="library_viewpagerindicator_author">baloomba</string>
+    <string name="library_viewpagerindicator_description">Android library for ViewPagerIndicator</string>
+    <string name="library_viewpagerindicator_version">2.4.2</string>
+    <string name="library_viewpagerindicator_website">http://mvnrepository.com/artifact/fr.baloomba/viewpagerindicator/2.4.2</string>
+    <string name="library_dfm_name">DanmakuFlameMaster</string>
+    <string name="library_dfm_author">Bilibili</string>
+    <string name="library_dfm_description">android上开源弹幕解析绘制引擎项目。</string>
+    <string name="library_dfm_version">0.4.2</string>
+    <string name="library_dfm_website">https://github.com/Bilibili/DanmakuFlameMaster</string>
+    <string name="library_androidasynchttp_name">Android Asynchronous Http Client</string>
+    <string name="library_androidasynchttp_author">James Smith</string>
+    <string name="library_androidasynchttp_description">An asynchronous callback-based Http client for Android built on top of Apache\'s HttpClient libraries.
+        \n\nAll requests are made outside of your app\'s main UI thread, but any callback logic will be executed on the same thread as the callback was created using Android\'s Handler message passing. You can also use it in Service or background thread, library will automatically recognize in which context is ran.</string>
+    <string name="library_androidasynchttp_version">1.4.9</string>
+    <string name="library_androidasynchttp_website">http://loopj.com/android-async-http/</string>
+    <string name="library_gson_name">gson</string>
+    <string name="library_gson_author">google</string>
+    <string name="library_gson_description">Gson is a Java library that can be used to convert Java Objects into their JSON representation. It can also be used to convert a JSON string to an equivalent Java object. Gson can work with arbitrary Java objects including pre-existing objects that you do not have source-code of.
+        \n\nThere are a few open-source projects that can convert Java objects to JSON. However, most of them require that you place Java annotations in your classes; something that you can not do if you do not have access to the source-code. Most also do not fully support the use of Java Generics. Gson considers both of these as very important design goals.</string>
+    <string name="library_gson_version">2.5</string>
+    <string name="library_gson_website">https://github.com/google/gson</string>
+    <string name="library_bottombar_name">BottomBar</string>
+    <string name="library_bottombar_author">roughike</string>
+    <string name="library_bottombar_description">A custom view component that mimics the new Material Design Bottom Navigation pattern.</string>
+    <string name="library_bottombar_version">1.3.3</string>
+    <string name="library_bottombar_website">https://github.com/roughike/BottomBar</string>
+    <string name="library_materialdialogs_name">material-dialogs</string>
+    <string name="library_materialdialogs_author">afollestad</string>
+    <string name="library_materialdialogs_description">A beautiful, easy-to-use, and customizable dialogs API, enabling you to use Material designed dialogs down to API 8.</string>
+    <string name="library_materialdialogs_version">0.8.5.1\@aar</string>
+    <string name="library_materialdialogs_website">https://github.com/afollestad/material-dialogs</string>
+    <string name="library_materialtabs_name">MaterialTabs</string>
+    <string name="library_materialtabs_author">pizza</string>
+    <string name="library_materialtabs_description">An easy-to-integrate tab bar for Android that completely respects the Material Design guidelines and supports all versions of Android since API 9!</string>
+    <string name="library_materialtabs_version">2.0.5</string>
+    <string name="library_materialtabs_website">https://github.com/pizza/MaterialTabs</string>
+    <string name="library_butterknife_name">Butter Knife</string>
+    <string name="library_butterknife_author">JakeWharton</string>
+    <string name="library_butterknife_description">Field and method binding for Android views which uses annotation processing to generate boilerplate code for you.</string>
+    <string name="library_butterknife_version">6.0.0</string>
+    <string name="library_butterknife_website">https://github.com/JakeWharton/butterknife</string>
+    <string name="library_kenburnsview_name">KenBurnsView</string>
+    <string name="library_kenburnsview_author">flavioarfaria</string>
+    <string name="library_kenburnsview_description">Android library that provides an extension to ImageView that creates an immersive experience by animating its drawable using the Ken Burns Effect.</string>
+    <string name="library_kenburnsview_version">1.0.7</string>
+    <string name="library_kenburnsview_website">https://github.com/flavioarfaria/KenBurnsView</string>
+    <string name="library_materialdesignlibrary_name">material-design-library</string>
+    <string name="library_materialdesignlibrary_author">DenisMondon</string>
+    <string name="library_materialdesignlibrary_description">A library that helps developers creating their Android Application with Material Design.</string>
+    <string name="library_materialdesignlibrary_version">2.0.4</string>
+    <string name="library_materialdesignlibrary_website">https://github.com/DenisMondon/material-design-library</string>
+    <string name="library_sugar_name">Sugar</string>
+    <string name="library_sugar_author">satyan</string>
+    <string name="library_sugar_description">Insanely easy way to work with Android Database. http://satyan.github.com/sugar/</string>
+    <string name="library_sugar_version">1.5</string>
+    <string name="library_sugar_website">https://github.com/satyan/sugar</string>
+
+
+    <!-- category -->
+    <string name="category_hot">热播榜</string>
+    <string name="category_hot_favorite">好评榜</string>
+    <string name="category_hot_new">新上线</string>
+    <string name="category_area">全部地区</string>
+    <string name="category_area_inland">内地</string>
+    <string name="category_area_hk">香港</string>
+    <string name="category_area_kr">韩国</string>
+    <string name="category_area_us">美剧</string>
+    <string name="category_area_jp">日本</string>
+    <string name="category_area_th">泰国</string>
+    <string name="category_area_tw">台湾</string>
+    <string name="category_area_other">其他</string>
+    <string name="category_type">全部类型</string>
+    <string name="category_type_homemade">自制剧</string>
+    <string name="category_type_love">言情剧</string>
+    <string name="category_type_history">历史剧</string>
+    <string name="category_type_martial">武侠剧</string>
+    <string name="category_type_costume">古装剧</string>
+    <string name="category_type_time">年代剧</string>
+    <string name="category_type_rural">农村剧</string>
+    <string name="category_type_star">偶像剧</string>
+    <string name="category_type_suspense">悬疑剧</string>
+    <string name="category_type_science">科幻剧</string>
+    <string name="category_type_comedy">喜剧</string>
+    <string name="category_type_palace">宫廷剧</string>
+    <string name="category_type_trade">商战剧</string>
+    <string name="category_type_myth">神话剧</string>
+    <string name="category_type_timetravel">穿越剧</string>
+    <string name="category_type_crime">罪案剧</string>
+    <string name="category_type_spy">谍战剧</string>
+    <string name="category_type_cantonese">粤语电视剧</string>
+    <string name="category_type_1080">超清1080P</string>
+    <string name="category_type_youth">青春剧</string>
+    <string name="category_type_family">家庭剧</string>
+    <string name="category_type_army">军旅剧</string>
+    <string name="category_type_story">剧情</string>
+    <string name="category_type_city">都市</string>
+    <string name="category_type_webshows">网络剧</string>
+    <string name="category_year">全部年份</string>
+    <string name="category_year_2016">2016</string>
+    <string name="category_year_2015">2015</string>
+    <string name="category_year_2014">2014</string>
+    <string name="category_year_2013">2013</string>
+    <string name="category_year_2012">2012</string>
+    <string name="category_year_2011">2011</string>
+    <string name="category_year_2000_2010">2000&#8211;2010</string>
+    <string name="category_year_90">90年代</string>
+    <string name="category_year_80">80年代</string>
+    <string name="category_year_earlier">更早</string>
+
+    <!-- feedback -->
+    <string name="feedback_title">Feedback &amp; Help</string>
+    <string name="retry_view_button_label">Retry</string>
+    <string name="attachment_add_menu">Attachments</string>
+    <string name="attachment_select_source_choose_existing">Choose existing</string>
+    <string name="attachment_select_source_new_photo">Take a photo</string>
+    <string name="attachment_upload_error_cancel">Cancel</string>
+    <string name="attachment_upload_error_file_already_added">File already added</string>
+    <string name="attachment_upload_error_file_not_found">File not found</string>
+    <string name="attachment_upload_error_file_too_big">Max attachment size is %s</string>
+    <string name="attachment_upload_error_try_again">Try again</string>
+    <string name="attachment_upload_error_upload_failed">Attachment failed to upload</string>
+    <string name="feedback_message_hint">Please report the problem you encountered here. You can also
+    attach screenshots with your problem.(Up to 4 images)\n\nIf you have any feedback or suggestion for 2BLive app improvement,
+        we would really appreciate it.</string>
+    <string name="feedback_contact">Contact: </string>
+    <string name="feedback_contact_hint">Your email address or mobile number</string>
+    <string name="feedback_submit">Submit</string>
+    <string name="network_activity_no_connectivity">No connection</string>
+
+    <string name="description_news_detail">News Detail</string>
+    <string name="description_poster">Poster</string>
+    <string name="description_cover">Cover</string>
+
+    <string name="stream_player_loading_text">即将播放</string>
+</resources>

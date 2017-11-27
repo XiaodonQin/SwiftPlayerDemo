@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/attachment_container_image_margin">
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/attachment_image"
+            android:layout_width="@dimen/attachment_size"
+            android:layout_height="@dimen/attachment_size"
+            android:layout_gravity="center"
+            fresco:actualImageScaleType="focusCrop"
+            fresco:backgroundImage="@mipmap/default_thumbnail"
+            fresco:fadeDuration="300"
+            fresco:failureImage="@mipmap/default_thumbnail"
+            fresco:failureImageScaleType="focusCrop"
+            fresco:placeholderImage="@mipmap/default_thumbnail"
+            fresco:placeholderImageScaleType="focusCrop"
+            fresco:roundAsCircle="false"
+            fresco:roundedCornerRadius="@dimen/attachment_circle_size"
+            fresco:roundTopLeft="true"
+            fresco:roundTopRight="true"
+            fresco:roundBottomLeft="true"
+            fresco:roundBottomRight="true" />
+
+        <ProgressBar
+            android:id="@+id/attachment_progress"
+            style="@style/attachment_container_progress_small" />
+
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/attachment_delete"
+        style="@style/attachment_container_delete_btn_small" />
+
+</FrameLayout>

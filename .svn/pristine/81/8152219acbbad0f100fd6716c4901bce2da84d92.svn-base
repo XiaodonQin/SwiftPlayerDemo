@@ -1,0 +1,110 @@
+/*
+ * Copyright (C) 2015 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package sg.com.conversant.swiftplayer.activity;
+
+import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import sg.com.conversant.swiftplayer.R;
+import sg.com.conversant.swiftplayer.adapter.LibsRecyclerViewAdapter;
+import sg.com.conversant.swiftplayer.sdk.module.Library;
+
+public class OpenSourceDetailActivity extends AppCompatActivity {
+
+    @InjectView(R.id.recycler_view)
+    RecyclerView mRecyclerView;
+
+    private List<Library> libraries;
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_open_source_detail);
+
+        ButterKnife.inject(this);
+
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        toolbar.setNavigationOnClickListener(clickListener);
+
+        CollapsingToolbarLayout collapsingToolbar =
+                (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+
+        collapsingToolbar.setTitle(getResources().getString(R.string.about_library));
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        libraries = new ArrayList<>();
+        initLibraries();
+
+        //prepare adapter
+        LibsRecyclerViewAdapter adapter = new LibsRecyclerViewAdapter(this);
+        adapter.setLibs(libraries);
+        mRecyclerView.setAdapter(adapter);
+    }
+
+    private void initLibraries() {
+        addLibrary(R.string.library_fresco_name, R.string.library_fresco_author, R.string.library_fresco_description, R.string.library_fresco_version, R.string.library_fresco_website);
+        addLibrary(R.string.library_viewpagerindicator_name, R.string.library_viewpagerindicator_author, R.string.library_viewpagerindicator_description, R.string.library_viewpagerindicator_version, R.string.library_viewpagerindicator_website);
+        addLibrary(R.string.library_dfm_name, R.string.library_dfm_author, R.string.library_dfm_description, R.string.library_dfm_version, R.string.library_dfm_website);
+        addLibrary(R.string.library_androidasynchttp_name, R.string.library_androidasynchttp_author, R.string.library_androidasynchttp_description, R.string.library_androidasynchttp_version, R.string.library_androidasynchttp_website);
+        addLibrary(R.string.library_gson_name, R.string.library_gson_author, R.string.library_gson_description, R.string.library_gson_version, R.string.library_gson_website);
+        addLibrary(R.string.library_bottombar_name, R.string.library_bottombar_author, R.string.library_bottombar_description, R.string.library_bottombar_version, R.string.library_bottombar_website);
+        addLibrary(R.string.library_materialdialogs_name, R.string.library_materialdialogs_author, R.string.library_materialdialogs_description, R.string.library_materialdialogs_version, R.string.library_materialdialogs_website);
+        addLibrary(R.string.library_materialtabs_name, R.string.library_materialtabs_author, R.string.library_materialtabs_description, R.string.library_materialtabs_version, R.string.library_materialtabs_website);
+        addLibrary(R.string.library_butterknife_name, R.string.library_butterknife_author, R.string.library_butterknife_description, R.string.library_butterknife_version, R.string.library_butterknife_website);
+        addLibrary(R.string.library_kenburnsview_name, R.string.library_kenburnsview_author, R.string.library_kenburnsview_description, R.string.library_kenburnsview_version, R.string.library_kenburnsview_website);
+        addLibrary(R.string.library_materialdesignlibrary_name, R.string.library_materialdesignlibrary_author, R.string.library_materialdesignlibrary_description, R.string.library_materialdesignlibrary_version, R.string.library_materialdesignlibrary_website);
+        addLibrary(R.string.library_sugar_name, R.string.library_sugar_author, R.string.library_sugar_description, R.string.library_sugar_version, R.string.library_sugar_website);
+
+    }
+
+    private void addLibrary(int name, int author, int description, int version, int website) {
+        if (libraries != null) {
+            Library library = new Library();
+            library.setLibraryName(getResources().getString(name));
+            library.setAuthor(getResources().getString(author));
+            library.setLibraryDescription(getResources().getString(description));
+            library.setLibraryVersion(getResources().getString(version));
+            library.setLibraryWebsite(getResources().getString(website));
+
+            libraries.add(library);
+        }
+    }
+
+    View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onBackPressed();
+        }
+    };
+}

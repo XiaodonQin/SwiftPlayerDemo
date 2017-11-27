@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryLight">#dd3F51B5</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="transparent">#00000000</color>
+    <color name="colorBackground">#fafafa</color>
+    <color name="colorBlackLight">#616161</color>
+    <color name="colorBlackDark">#212121</color>
+
+    <color name="bullet_bt_green">#ff669900</color>
+    <color name="bullet_bt_white">#ffffffff</color>
+
+    <color name="index_bg">@color/colorPrimaryDark</color>
+    <color name="item_bar_bg">#FFE8EBEE</color>
+    <color name="about_card">#FAFAFA</color>
+    <color name="black">#000</color>
+    <color name="black_light">#434343</color>
+    <color name="black_light_2">#aa434343</color>
+    <color name="black_dark">#212121</color>
+    <color name="gray_light">#44434343</color>
+    <color name="gray_light_2">#22434343</color>
+    <color name="white_transparent">#00ffffff</color>
+    <color name="white_transparent_1">#e0ffffff</color>
+
+    <color name="about_libraries_card">#FAFAFA</color>
+    <color name="about_libraries_card_dark">#666666</color>
+    <color name="about_libraries_dividerDark_openSource">#AAA</color>
+    <color name="about_libraries_dividerDark_openSource_dark">#303030</color>
+    <color name="about_libraries_dividerLight_openSource">#DADADA</color>
+    <color name="about_libraries_dividerLight_openSource_dark">#303030</color>
+    <color name="about_libraries_special_button_openSource">#212121</color>
+    <color name="about_libraries_special_button_openSource_dark">#ffffffff</color>
+    <color name="about_libraries_text_openSource">#727272</color>
+    <color name="about_libraries_text_openSource_dark">#DEDEDE</color>
+    <color name="about_libraries_title_openSource">#212121</color>
+    <color name="about_libraries_title_openSource_dark">#ffffffff</color>
+    <color name="about_libraries_window_background">#ECECEC</color>
+    <color name="about_libraries_window_background_dark">#303030</color>
+</resources>

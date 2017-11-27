@@ -1,0 +1,14 @@
+package sg.com.conversant.swiftplayer.mvp.ui.activity;
+
+import android.support.v7.app.AppCompatActivity;
+
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2017/8/11.
+ */
+
+public class NewsActivity extends AppCompatActivity {
+
+
+}

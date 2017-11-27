@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/add_attachment_layout"
+    android:layout_gravity="center"
+    android:padding="@dimen/attachment_container_image_margin">
+
+    <ImageView
+        android:layout_width="@dimen/attachment_size"
+        android:layout_height="@dimen/attachment_size"
+        android:src="@android:drawable/ic_menu_add"
+        android:background="@color/gray_light"/>
+
+</LinearLayout>

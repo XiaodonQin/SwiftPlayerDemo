@@ -1,0 +1,24 @@
+package sg.com.conversant.swiftplayer.mvp.data;
+
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import sg.com.conversant.swiftplayer.sdk.API;
+
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2017/9/13.
+ */
+
+public interface RetrofitService {
+
+    interface ZhihuDailyService {
+
+        @GET(API.API_ZHIHU.GET_ZHIHU_DAILY_NEWS_LIST)
+        Call<ZhihuDailyNewsCluster> getZhihuDailyNewsList(@Path(API.API_ZHIHU_PATH.DATE) String date);
+
+        @GET(API.API_ZHIHU.GET_ZHIHU_DAILY_NEWS_CONTENT)
+        Call<ZhihuDailyNewsDetail> getZhihuDailyNewsDetail(@Path(API.API_ZHIHU_PATH.ID) long id);
+    }
+}

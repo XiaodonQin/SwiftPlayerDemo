@@ -1,0 +1,797 @@
+/**
+ * Copyright (c) 2016 Conversant Solutions. All rights reserved.
+ * <p/>
+ * Created on 2016/3/8.
+ */
+package sg.com.conversant.swiftplayer.fragment;
+
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.ContentLoadingProgressBar;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ImageSpan;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.VideoView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
+
+import master.flame.danmaku.controller.IDanmakuView;
+import master.flame.danmaku.danmaku.loader.ILoader;
+import master.flame.danmaku.danmaku.loader.IllegalDataException;
+import master.flame.danmaku.danmaku.loader.android.DanmakuLoaderFactory;
+import master.flame.danmaku.danmaku.model.BaseDanmaku;
+import master.flame.danmaku.danmaku.model.DanmakuTimer;
+import master.flame.danmaku.danmaku.model.IDanmakus;
+import master.flame.danmaku.danmaku.model.IDisplayer;
+import master.flame.danmaku.danmaku.model.android.BaseCacheStuffer;
+import master.flame.danmaku.danmaku.model.android.DanmakuContext;
+import master.flame.danmaku.danmaku.model.android.Danmakus;
+import master.flame.danmaku.danmaku.model.android.SpannedCacheStuffer;
+import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
+import master.flame.danmaku.danmaku.parser.IDataSource;
+import master.flame.danmaku.danmaku.parser.android.BiliDanmukuParser;
+import master.flame.danmaku.danmaku.util.IOUtils;
+import master.flame.danmaku.ui.widget.DanmakuView;
+import sg.com.conversant.swiftplayer.R;
+import sg.com.conversant.swiftplayer.activity.MediaDetailActivity;
+import sg.com.conversant.swiftplayer.sdk.API;
+import sg.com.conversant.swiftplayer.sdk.Constants;
+import sg.com.conversant.swiftplayer.sdk.module.ContentItem;
+import sg.com.conversant.swiftplayer.utils.L;
+import sg.com.conversant.swiftplayer.utils.Utils;
+
+/**
+ * TODO
+ *
+ * @author Xiaodong
+ */
+public class MediaPlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, View.OnClickListener {
+    private static String LOG_TAG = "MediaPlayerFragment";
+
+    public static final String OPEN_BULLET = "OPEN_BULLET";
+    private static String PLAY_AND_PAUSE_POSITION = "PLAY_AND_PAUSE_POSITION";
+    private static final int CHECK_VISIBLE_TIME = 5000;
+
+    private Activity mActivity;
+    private LayoutInflater mLayoutInflater;
+
+    private View mTitleInfoLayout;
+    private View mBottomBarLayout;
+
+    private VideoView mVideoView;
+    private DanmakuView mDanmakuView;
+    private TextView mCurrentTimeView;
+    private TextView mDurationTimeView;
+    private SeekBar mSeekBar;
+    private Button mPlayButton;
+    private ImageView mCloseButton;
+    private ImageView mBulletButton;
+    private Button mFullScreenButton;
+    private LinearLayout mReloadBtn;
+
+    private long mCurrentPosition = 0;
+
+    private long mDuration = 0;
+
+    private Handler mMainHandler;
+    private Handler mCheckBottomBarVisibleHandler;
+
+    private long mFirstClickTime = 0;
+
+    private String videoURL;
+
+    private boolean mIsPlaying = false;
+    private boolean mPlayOver = false;
+
+    private ContentItem mContentItem;
+
+    private ContentLoadingProgressBar progressBar;
+
+    private SharedPreferences sharedPreferences;
+    private DanmakuContext mDanmakuContext;
+    private BaseDanmakuParser mParser;
+
+    private BaseCacheStuffer.Proxy mCacheStufferAdapter = new BaseCacheStuffer.Proxy() {
+
+        private Drawable mDrawable;
+
+        @Override
+        public void prepareDrawing(final BaseDanmaku danmaku, boolean fromWorkerThread) {
+            if (danmaku.text instanceof Spanned) { // 根据你的条件检查是否需要需要更新弹幕
+                // FIXME 这里只是简单启个线程来加载远程url图片，请使用你自己的异步线程池，最好加上你的缓存池
+                new Thread() {
+
+                    @Override
+                    public void run() {
+                        String url = "http://www.bilibili.com/favicon.ico";
+                        InputStream inputStream = null;
+                        Drawable drawable = mDrawable;
+                        if (drawable == null) {
+                            try {
+                                URLConnection urlConnection = new URL(url).openConnection();
+                                inputStream = urlConnection.getInputStream();
+                                drawable = BitmapDrawable.createFromStream(inputStream, "bitmap");
+                                mDrawable = drawable;
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                IOUtils.closeQuietly(inputStream);
+                            }
+                        }
+                        if (drawable != null) {
+                            drawable.setBounds(0, 0, 100, 100);
+                            SpannableStringBuilder spannable = createSpannable(drawable);
+                            danmaku.text = spannable;
+                            if (mDanmakuView != null) {
+                                mDanmakuView.invalidateDanmaku(danmaku, false);
+                            }
+                            return;
+                        }
+                    }
+                }.start();
+            }
+        }
+
+        @Override
+        public void releaseResource(BaseDanmaku danmaku) {
+            // TODO 重要:清理含有ImageSpan的text中的一些占用内存的资源 例如drawable
+        }
+    };
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        L.i("onCreate");
+        super.onCreate(savedInstanceState);
+
+        mActivity = getActivity();
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        mDanmakuContext = DanmakuContext.create();
+
+        Bundle mBundle = getArguments();
+
+        mContentItem = (ContentItem) mBundle.getSerializable(MediaDetailActivity.INTENT_CONTENT_ITEM);
+
+        if (mContentItem == null) {
+            return;
+        }
+
+        mLayoutInflater = LayoutInflater.from(mActivity);
+
+        if (savedInstanceState != null) {
+            mCurrentPosition = savedInstanceState.getLong(PLAY_AND_PAUSE_POSITION, 0);
+        }
+
+        mMainHandler = new Handler();
+        mCheckBottomBarVisibleHandler = new Handler();
+
+        videoURL = Constants.SERVER_URL + mContentItem.getPlayUrl();
+//        videoURL = "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8";
+//        videoURL = "http://edge.conversant.swiftserve.com/swiftcoder-dev/fc-swiftcoder-dev/live_s13/slv/vod.m3u8";
+//        videoURL = "http://192.168.1.25/08102016video/vod.m3u8";
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        L.i("onCreateView");
+        View mRootView = mLayoutInflater.inflate(R.layout.fragment_media_player, container, false);
+
+        mVideoView = (VideoView) mRootView.findViewById(R.id.videoview);
+        mDanmakuView = (DanmakuView) mRootView.findViewById(R.id.sv_danmaku);
+
+        mCurrentTimeView = (TextView) mRootView.findViewById(R.id.current_time);
+        mDurationTimeView = (TextView) mRootView.findViewById(R.id.duration);
+        mSeekBar = (SeekBar) mRootView.findViewById(R.id.seekbar);
+        mPlayButton = (Button) mRootView.findViewById(R.id.play_pause_button);
+
+        mTitleInfoLayout = mRootView.findViewById(R.id.title_info_layout);
+        mBottomBarLayout = mRootView.findViewById(R.id.bottom_controller_layout);
+        mTitleInfoLayout.setVisibility(View.GONE);
+
+        mCloseButton = (ImageView) mRootView.findViewById(R.id.video_close);
+        mBulletButton = (ImageView) mRootView.findViewById(R.id.bullet_button);
+        mFullScreenButton = (Button) mRootView.findViewById(R.id.full_screen_button);
+        progressBar = (ContentLoadingProgressBar) mRootView.findViewById(R.id.progress);
+        mReloadBtn = (LinearLayout) mRootView.findViewById(R.id.video_reload_layout);
+        mReloadBtn.setVisibility(View.GONE);
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        initDanmaku();
+
+        if (openedBullet()) {
+            mBulletButton.setImageResource(R.mipmap.ic_player_landscape_spitslot_press);
+        } else {
+            mBulletButton.setImageResource(R.mipmap.ic_player_landscape_spitslot_normal);
+        }
+
+        mVideoView.setOnPreparedListener(this);
+        mVideoView.setOnErrorListener(this);
+        mVideoView.setOnCompletionListener(this);
+
+        mPlayButton.setOnClickListener(this);
+        mCloseButton.setOnClickListener(this);
+        mBulletButton.setOnClickListener(this);
+        mFullScreenButton.setOnClickListener(this);
+        mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
+        mReloadBtn.setOnClickListener(this);
+        mDanmakuView.setOnClickListener(this);
+
+        mCheckBottomBarVisibleHandler.postDelayed(mVisibleChecker, CHECK_VISIBLE_TIME);
+
+        mVideoView.setVideoPath(videoURL);
+
+        return mRootView;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.play_pause_button:
+
+                if (mVideoView.isPlaying()) {
+                    mVideoView.pause();
+                    mDanmakuView.pause();
+                    mMainHandler.removeCallbacks(mProgressChecker);
+                    mIsPlaying = false;
+
+                    if (mPlayButton != null) {
+                        mPlayButton.setBackgroundResource(android.R.drawable.ic_media_play);
+                    }
+                } else {
+                    if (mReloadBtn.getVisibility() == View.VISIBLE) {
+                        mReloadBtn.setVisibility(View.GONE);
+                    }
+                    mVideoView.start();
+                    if (openedBullet()) {
+                        if (mPlayOver) {
+                            initDanmaku();
+                            mDanmakuView.show();
+
+                        } else {
+                            mDanmakuView.resume();
+
+                        }
+                    }
+
+                    mMainHandler.post(mProgressChecker);
+                    mIsPlaying = true;
+
+                    if (mPlayButton != null) {
+                        mPlayButton.setBackgroundResource(android.R.drawable.ic_media_pause);
+                    }
+                }
+
+                break;
+
+            case R.id.video_close:
+                if (mActivity instanceof MediaDetailActivity) {
+                    ((MediaDetailActivity) mActivity).hidePlayerFragment();
+                }
+
+                switch (Utils.getScreenOrientation(mActivity)) {
+                    case Configuration.ORIENTATION_LANDSCAPE:
+                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//                        mBulletButton.setVisibility(View.INVISIBLE);
+                        mFullScreenButton.setBackgroundResource(R.mipmap.icon_fullscreen);
+
+                        break;
+                }
+                break;
+
+            case R.id.bullet_button:
+
+                if (openedBullet()) {
+                    mBulletButton.setImageResource(R.mipmap.ic_player_landscape_spitslot_normal);
+                    setBulletStatus(false);
+                    mDanmakuView.hide();
+                } else {
+                    mBulletButton.setImageResource(R.mipmap.ic_player_landscape_spitslot_press);
+                    setBulletStatus(true);
+                    mDanmakuView.show();
+                }
+
+                break;
+
+            case R.id.full_screen_button:
+
+                setupFullScreen();
+
+                break;
+
+            case R.id.video_reload_layout:
+                mReloadBtn.setVisibility(View.GONE);
+                mVideoView.start();
+
+                if (openedBullet()) {
+                    initDanmaku();
+                    mDanmakuView.show();
+                } else {
+                    mDanmakuView.hideAndPauseDrawTask();
+                }
+                mMainHandler.post(mProgressChecker);
+                mIsPlaying = true;
+
+                if (mPlayButton != null) {
+                    mPlayButton.setBackgroundResource(android.R.drawable.ic_media_pause);
+                }
+                break;
+
+            case R.id.sv_danmaku:
+                L.i(LOG_TAG + " click sv_danmaku");
+
+                if (mTitleInfoLayout.getVisibility() == View.VISIBLE) {
+                    mTitleInfoLayout.setVisibility(View.GONE);
+                } else {
+                    mTitleInfoLayout.setVisibility(View.GONE);
+                }
+
+                if (mBottomBarLayout.getVisibility() == View.VISIBLE) {
+                    mBottomBarLayout.setVisibility(View.GONE);
+                    if (Utils.getScreenOrientation(mActivity) ==
+                            Configuration.ORIENTATION_LANDSCAPE)
+                        ((MediaDetailActivity) mActivity).hideNavigationBar();
+                } else {
+                    mBottomBarLayout.setVisibility(View.VISIBLE);
+                }
+
+                if (mCheckBottomBarVisibleHandler != null) {
+                    mCheckBottomBarVisibleHandler.removeCallbacks(mVisibleChecker);
+                }
+                mCheckBottomBarVisibleHandler.postDelayed(mVisibleChecker, CHECK_VISIBLE_TIME);
+                break;
+        }
+    }
+
+    private boolean openedBullet() {
+        if (sharedPreferences == null) {
+            return false;
+        }
+        return sharedPreferences.getBoolean(OPEN_BULLET, false);
+    }
+
+    private void setBulletStatus(boolean status) {
+        if (sharedPreferences == null) {
+            return;
+        }
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(OPEN_BULLET, status);
+        editor.commit();
+    }
+
+    private void initDanmaku() {
+        // 设置最大显示行数
+        HashMap<Integer, Integer> maxLinesPair = new HashMap<Integer, Integer>();
+        maxLinesPair.put(BaseDanmaku.TYPE_SCROLL_RL, 3); // 滚动弹幕最大显示3行
+        // 设置是否禁止重叠
+        HashMap<Integer, Boolean> overlappingEnablePair = new HashMap<Integer, Boolean>();
+        overlappingEnablePair.put(BaseDanmaku.TYPE_SCROLL_RL, true);
+        overlappingEnablePair.put(BaseDanmaku.TYPE_FIX_TOP, true);
+
+        mDanmakuContext.setDanmakuStyle(IDisplayer.DANMAKU_STYLE_STROKEN, 3).setDuplicateMergingEnabled(false).setScrollSpeedFactor(1f).setScaleTextSize(0.9f)
+                .setCacheStuffer(new SpannedCacheStuffer(), mCacheStufferAdapter) // 图文混排使用SpannedCacheStuffer
+//        .setCacheStuffer(new BackgroundCacheStuffer())  // 绘制背景使用BackgroundCacheStuffer
+                .setMaximumLines(maxLinesPair).setFBDanmakuVisibility(false).setFTDanmakuVisibility(false)
+                .preventOverlapping(overlappingEnablePair);
+        if (mDanmakuView != null) {
+            mParser = createParser(this.getResources().openRawResource(R.raw.comments));
+            mDanmakuView.setCallback(new master.flame.danmaku.controller.DrawHandler.Callback() {
+                @Override
+                public void updateTimer(DanmakuTimer timer) {
+                }
+
+                @Override
+                public void drawingFinished() {
+
+                }
+
+                @Override
+                public void danmakuShown(BaseDanmaku danmaku) {
+//                    Log.d("DFM", "danmakuShown(): text=" + danmaku.text);
+                }
+
+                @Override
+                public void prepared() {
+                    mDanmakuView.start();
+                }
+            });
+            mDanmakuView.setOnDanmakuClickListener(new IDanmakuView.OnDanmakuClickListener() {
+                @Override
+                public void onDanmakuClick(BaseDanmaku latest) {
+                    L.d("DFM" + " onDanmakuClick text:" + latest.text);
+                }
+
+                @Override
+                public void onDanmakuClick(IDanmakus danmakus) {
+                    L.d("DFM" + " onDanmakuClick danmakus size:" + danmakus.size());
+                }
+            });
+            mDanmakuView.prepare(mParser, mDanmakuContext);
+            mDanmakuView.showFPS(false);
+            mDanmakuView.enableDanmakuDrawingCache(true);
+            mDanmakuView.hide();
+        }
+
+    }
+
+    private BaseDanmakuParser createParser(InputStream stream) {
+
+        if (stream == null) {
+            return new BaseDanmakuParser() {
+
+                @Override
+                protected Danmakus parse() {
+                    return new Danmakus();
+                }
+            };
+        }
+
+        ILoader loader = DanmakuLoaderFactory.create(DanmakuLoaderFactory.TAG_BILI);
+
+        try {
+            loader.load(stream);
+        } catch (IllegalDataException e) {
+            e.printStackTrace();
+        }
+        BaseDanmakuParser parser = new BiliDanmukuParser();
+        IDataSource<?> dataSource = loader.getDataSource();
+        parser.load(dataSource);
+        return parser;
+
+    }
+
+    private void addDanmaku(boolean islive) {
+        BaseDanmaku danmaku = mDanmakuContext.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_SCROLL_RL);
+        if (danmaku == null || mDanmakuView == null) {
+            return;
+        }
+        // for(int i=0;i<100;i++){
+        // }
+        danmaku.text = "这是一条弹幕" + System.nanoTime();
+        danmaku.padding = 5;
+        danmaku.priority = 0;  // 可能会被各种过滤器过滤并隐藏显示
+        danmaku.isLive = islive;
+        danmaku.time = mDanmakuView.getCurrentTime() + 1200;
+        danmaku.textSize = 25f * (mParser.getDisplayer().getDensity() - 0.6f);
+        danmaku.textColor = Color.RED;
+        danmaku.textShadowColor = Color.WHITE;
+        // danmaku.underlineColor = Color.GREEN;
+        danmaku.borderColor = Color.GREEN;
+        mDanmakuView.addDanmaku(danmaku);
+
+    }
+
+    private void addDanmaKuShowTextAndImage(boolean islive) {
+        BaseDanmaku danmaku = mDanmakuContext.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_SCROLL_RL);
+        Drawable drawable = getResources().getDrawable(R.mipmap.ic_launcher);
+        drawable.setBounds(0, 0, 100, 100);
+        SpannableStringBuilder spannable = createSpannable(drawable);
+        danmaku.text = spannable;
+        danmaku.padding = 5;
+        danmaku.priority = 1;  // 一定会显示, 一般用于本机发送的弹幕
+        danmaku.isLive = islive;
+        danmaku.time = mDanmakuView.getCurrentTime() + 1200;
+        danmaku.textSize = 25f * (mParser.getDisplayer().getDensity() - 0.6f);
+        danmaku.textColor = Color.RED;
+        danmaku.textShadowColor = 0; // 重要：如果有图文混排，最好不要设置描边(设textShadowColor=0)，否则会进行两次复杂的绘制导致运行效率降低
+        danmaku.underlineColor = Color.GREEN;
+        mDanmakuView.addDanmaku(danmaku);
+    }
+
+    private SpannableStringBuilder createSpannable(Drawable drawable) {
+        String text = "bitmap";
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(text);
+        ImageSpan span = new ImageSpan(drawable);//ImageSpan.ALIGN_BOTTOM);
+        spannableStringBuilder.setSpan(span, 0, text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        spannableStringBuilder.append("图文混排");
+        spannableStringBuilder.setSpan(new BackgroundColorSpan(Color.parseColor("#8A2233B1")), 0, spannableStringBuilder.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        return spannableStringBuilder;
+    }
+
+    private SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            if (mCurrentTimeView != null) {
+                mCurrentTimeView.setText(Utils.stringForTime(progress));
+            }
+
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+            mMainHandler.removeCallbacks(mProgressChecker);
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+            if (mVideoView != null) {
+                mVideoView.seekTo(seekBar.getProgress());
+                mMainHandler.post(mProgressChecker);
+            }
+
+            if (mDanmakuView != null && mDanmakuView.isShown()) {
+                mDanmakuView.seekTo((long) seekBar.getProgress());
+            }
+
+        }
+    };
+
+    private void setupFullScreen() {
+        switch (Utils.getScreenOrientation(mActivity)) {
+            case Configuration.ORIENTATION_LANDSCAPE:
+
+                mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                mFullScreenButton.setBackgroundResource(R.mipmap.icon_fullscreen);
+
+                break;
+
+            case Configuration.ORIENTATION_PORTRAIT:
+
+                mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                mFullScreenButton.setBackgroundResource(R.mipmap.icon_smallscreen);
+
+                break;
+        }
+    }
+
+    public void setFullScreenIcon() {
+        if (mFullScreenButton != null) {
+            mFullScreenButton.setBackgroundResource(R.mipmap.icon_fullscreen);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+
+        switch (newConfig.orientation) {
+
+            case Configuration.ORIENTATION_LANDSCAPE:
+
+                if (mBulletButton != null) {
+//                    mBulletButton.setVisibility(View.VISIBLE);
+                }
+                break;
+            case Configuration.ORIENTATION_PORTRAIT:
+
+                if (mBulletButton != null) {
+//                    mBulletButton.setVisibility(View.INVISIBLE);
+                }
+                break;
+        }
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putFloat(PLAY_AND_PAUSE_POSITION, mCurrentPosition);
+    }
+
+    @Override
+    public void onDestroy() {
+        L.i("onDestroy");
+        super.onDestroy();
+
+        if (mMainHandler != null) {
+            mMainHandler.removeCallbacks(mProgressChecker);
+        }
+
+        if (mVideoView != null) {
+            mVideoView.pause();
+            mVideoView.stopPlayback();
+            mIsPlaying = false;
+        }
+
+        if (mPlayButton != null) {
+            mPlayButton.setBackgroundResource(android.R.drawable.ic_media_play);
+        }
+
+        if (mDanmakuView != null) {
+            // dont forget release!
+            mDanmakuView.release();
+            mDanmakuView = null;
+        }
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mediaPlayer) {
+        L.i("onPrepared");
+        mediaPlayer.start();
+        mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                switch (what) {
+                    case MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START: {
+                        L.i("onInfo MEDIA_INFO_VIDEO_RENDERING_START");
+                        showLoadingBar(false);
+
+                        if (openedBullet()) {
+                            mDanmakuView.show();
+                        }
+                        return true;
+                    }
+                    case MediaPlayer.MEDIA_INFO_BUFFERING_START: {
+                        L.i("onInfo MEDIA_INFO_BUFFERING_START");
+                        showLoadingBar(true);
+
+                        return true;
+                    }
+                    case MediaPlayer.MEDIA_INFO_BUFFERING_END: {
+                        L.i("onInfo MEDIA_INFO_BUFFERING_END");
+                        showLoadingBar(false);
+
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        mIsPlaying = true;
+        mPlayButton.setBackgroundResource(android.R.drawable.ic_media_pause);
+        mDuration = mediaPlayer.getDuration();
+
+        if (mDurationTimeView != null && mSeekBar != null) {
+            mDurationTimeView.setText(Utils.stringForTime(mDuration));
+
+            mSeekBar.setMax((int) mDuration);
+        }
+        mMainHandler.post(mProgressChecker);
+    }
+
+    private void showLoadingBar(boolean show) {
+        if (progressBar != null) {
+            if (show) {
+                progressBar.setVisibility(View.VISIBLE);
+            } else {
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private Runnable mProgressChecker = new Runnable() {
+        @Override
+        public void run() {
+
+            mCurrentPosition = mVideoView.getCurrentPosition();
+
+            mCurrentTimeView.setText(Utils.stringForTime(mCurrentPosition));
+            mSeekBar.setProgress((int) mCurrentPosition);
+
+            mMainHandler.postDelayed(this, 1000);
+        }
+    };
+
+    private Runnable mVisibleChecker = new Runnable() {
+        @Override
+        public void run() {
+            if (mBottomBarLayout != null && mBottomBarLayout.getVisibility() == View.VISIBLE) {
+                mBottomBarLayout.setVisibility(View.GONE);
+
+                mCheckBottomBarVisibleHandler.removeCallbacks(this);
+            }
+
+            if (Utils.getScreenOrientation(mActivity) ==
+                    Configuration.ORIENTATION_LANDSCAPE)
+                ((MediaDetailActivity) mActivity).hideNavigationBar();
+        }
+    };
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        L.i("onError");
+        if (mMainHandler != null) {
+            mMainHandler.removeCallbacks(mProgressChecker);
+            mIsPlaying = false;
+        }
+
+        if (mPlayButton != null) {
+            mPlayButton.setBackgroundResource(android.R.drawable.ic_media_play);
+        }
+        return false;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        L.i("onCompletion");
+
+        if (mMainHandler != null) {
+            mMainHandler.removeCallbacks(mProgressChecker);
+            mIsPlaying = false;
+        }
+
+        if (mPlayButton != null) {
+            mPlayButton.setBackgroundResource(android.R.drawable.ic_media_play);
+            mCurrentTimeView.setText(Utils.stringForTime(mDuration));
+            mReloadBtn.setVisibility(View.VISIBLE);
+        }
+
+        if (mDanmakuView != null) {
+            mDanmakuView.release();
+        }
+
+        mPlayOver = true;
+    }
+
+    @Override
+    public void onPause() {
+        L.i("onPause");
+        super.onPause();
+
+        if (mVideoView != null) {
+            mCurrentPosition = mVideoView.getCurrentPosition();
+            mVideoView.pause();
+            mIsPlaying = false;
+        }
+
+        if (mMainHandler != null) {
+            mMainHandler.removeCallbacks(mProgressChecker);
+        }
+
+        if (mPlayButton != null) {
+            mPlayButton.setBackgroundResource(android.R.drawable.ic_media_play);
+        }
+
+        if (mDanmakuView != null && mDanmakuView.isPrepared()) {
+            mDanmakuView.pause();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        L.i("onResume");
+        super.onResume();
+
+        if (mVideoView.canSeekForward() && mCurrentPosition > 0) {
+            mVideoView.seekTo((int) mCurrentPosition);
+        }
+
+        if (mIsPlaying) {
+            mVideoView.start();
+        } else {
+            mVideoView.pause();
+        }
+
+        if (mMainHandler != null) {
+            mMainHandler.post(mProgressChecker);
+        }
+
+        if (mDanmakuView != null && mDanmakuView.isPrepared() && mDanmakuView.isPaused()) {
+            mDanmakuView.resume();
+        }
+    }
+}

@@ -1,0 +1,67 @@
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2016/3/17.
+ */
+package sg.com.conversant.swiftplayer;
+
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import com.crashlytics.android.Crashlytics;
+import com.facebook.common.logging.FLog;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
+import com.facebook.imagepipeline.listener.RequestListener;
+import com.facebook.imagepipeline.listener.RequestLoggingListener;
+import com.tencent.bugly.crashreport.CrashReport;
+
+import io.fabric.sdk.android.Fabric;
+import java.util.HashSet;
+import java.util.Set;
+
+import sg.com.conversant.swiftplayer.configs.imagepipeline.ImagePipelineConfigFactory;
+import sg.com.conversant.swiftplayer.sdk.API;
+import sg.com.conversant.swiftplayer.sdk.Constants;
+import sg.com.conversant.swiftplayer.utils.L;
+
+/**
+ * TODO
+ *
+ * @author Xiaodong
+
+ */
+public class MyApplication extends Application{
+
+    private SharedPreferences sharedPreferences;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Fabric.with(this, new Crashlytics());
+        CrashReport.initCrashReport(getApplicationContext(), "0f20b446d9", false);
+
+        //init environment
+        initEnvironment();
+
+        // switch for print log
+        L.writeDebugLogs(true);
+
+        //initialize Fresco
+        initFresco(getApplicationContext());
+    }
+
+    private void initEnvironment() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Constants.SERVER_URL = sharedPreferences.getString(API.CONFIG.SERVER_URL, Constants.SERVER_URL);
+    }
+
+    public static void initFresco(Context context) {
+        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
+        ImagePipelineConfig config = ImagePipelineConfigFactory.getImagePipelineConfig(context);
+
+        Fresco.initialize(context, config);
+    }
+}

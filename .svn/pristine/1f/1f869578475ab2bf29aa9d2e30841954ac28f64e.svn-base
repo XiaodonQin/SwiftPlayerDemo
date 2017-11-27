@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navi_recommend"
+        android:icon="@mipmap/navi_recommend"
+        android:title="@string/bottom_navi_recommend" />
+    <item
+        android:id="@+id/navi_category"
+        android:icon="@mipmap/navi_category"
+        android:title="@string/bottom_navi_category" />
+    <item
+        android:id="@+id/navi_find"
+        android:icon="@mipmap/navi_find"
+        android:title="@string/bottom_navi_find" />
+    <item
+        android:id="@+id/navi_my"
+        android:icon="@mipmap/navi_my"
+        android:title="@string/bottom_navi_my" />
+</menu>

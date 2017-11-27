@@ -1,0 +1,118 @@
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2016/3/17.
+ */
+package sg.com.conversant.swiftplayer;
+
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import com.crashlytics.android.Crashlytics;
+import com.facebook.common.logging.FLog;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
+import com.facebook.imagepipeline.listener.RequestListener;
+import com.facebook.imagepipeline.listener.RequestLoggingListener;
+import com.tencent.bugly.crashreport.CrashReport;
+import com.zendesk.logger.Logger;
+import com.zendesk.sdk.model.access.AnonymousIdentity;
+import com.zendesk.sdk.model.request.CustomField;
+import com.zendesk.sdk.network.impl.ZendeskConfig;
+
+import cn.jpush.android.api.JPushInterface;
+import io.fabric.sdk.android.Fabric;
+
+import java.security.AlgorithmConstraints;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import sg.com.conversant.swiftplayer.configs.imagepipeline.ImagePipelineConfigFactory;
+import sg.com.conversant.swiftplayer.sdk.API;
+import sg.com.conversant.swiftplayer.sdk.Constants;
+import sg.com.conversant.swiftplayer.utils.L;
+import sg.com.conversant.swiftplayer.utils.Utils;
+
+/**
+ * TODO
+ *
+ * @author Xiaodong
+ */
+public class MyApplication extends Application {
+
+    private SharedPreferences sharedPreferences;
+
+    private static final String COM_ZENDESK_SDK_URL = "https://conversantsh.zendesk.com";
+    private static final String COM_ZENDESK_SDK_IDENTIFIER = "861d0d8aca388fbdec639021fe7f19bc10cad2295b7f255f";
+    private static final String COM_ZENDESK_SDK_CLIENTIDENTIFIER = "mobile_sdk_client_e52e777925fdc5255c49";
+
+    private static final Long CUSTOM_FIELD_ID_DEVICE_VERSION = 114097330173L;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Fabric.with(this, new Crashlytics());
+        CrashReport.initCrashReport(getApplicationContext(), "0f20b446d9", false);
+
+        //init environment
+        initEnvironment();
+
+        // switch for print log
+        L.writeDebugLogs(true);
+
+        //initialize Fresco
+        initFresco(getApplicationContext());
+
+        Logger.setLoggable(BuildConfig.DEBUG);
+        initializeZendesk();
+
+        initJPush();
+    }
+
+    private void initEnvironment() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Constants.SERVER_URL = sharedPreferences.getString(API.CONFIG.SERVER_URL, Constants.SERVER_URL);
+    }
+
+    public static void initFresco(Context context) {
+        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
+        ImagePipelineConfig config = ImagePipelineConfigFactory.getImagePipelineConfig(context);
+
+        Fresco.initialize(context, config);
+    }
+
+    private void initializeZendesk() {
+        // Initialize the Support SDK with your Zendesk Support subdomain, mobile SDK app ID, and client ID.
+        // Get these details from your Zendesk Support dashboard: Admin -> Channels -> Mobile SDK
+        ZendeskConfig.INSTANCE.init(getApplicationContext(),
+                COM_ZENDESK_SDK_URL, COM_ZENDESK_SDK_IDENTIFIER, COM_ZENDESK_SDK_CLIENTIDENTIFIER
+//                getString(R.string.com_zendesk_sdk_url),
+//                getString(R.string.com_zendesk_sdk_identifier),
+//                getString(R.string.com_zendesk_sdk_clientIdentifier)
+        );
+
+
+        // Authenticate anonymously as a Zendesk Support user
+        ZendeskConfig.INSTANCE.setIdentity(
+                new AnonymousIdentity.Builder()
+                        .withNameIdentifier("John Bob")
+                        .withEmailIdentifier("johnbob@example.com")
+                        .build()
+        );
+
+        List<CustomField> customFields = new ArrayList<>();
+        L.i("MyApplication" + " user agent: " + Utils.getUserAgent());
+        customFields.add(new CustomField(CUSTOM_FIELD_ID_DEVICE_VERSION, Utils.getUserAgent()));
+        ZendeskConfig.INSTANCE.setCustomFields(customFields);
+    }
+
+    private void initJPush() {
+        JPushInterface.setDebugMode(true); 	// 设置开启日志,发布时请关闭日志
+        JPushInterface.init(this);     		// 初始化 JPush
+    }
+
+}

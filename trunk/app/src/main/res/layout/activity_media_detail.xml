@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.MediaDetailActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:id="@+id/preview"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preview_height"
+            android:background="@android:color/black"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/back_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:padding="@dimen/default_padding"
+            android:src="@mipmap/ic_back_light" />
+
+        <ImageView
+            android:id="@+id/favorite_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:padding="@dimen/default_padding"
+            android:src="@mipmap/ic_favorite_light" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:divider="@drawable/comment_divider"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="vertical" />
+
+        <LinearLayout
+            android:id="@+id/comment_edit_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView android:id="@+id/cancel_reply"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel_reply"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/abc_text_size_title_material_toolbar"
+                android:clickable="true"
+                android:foreground="?selectableItemBackground"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/default_padding"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/default_padding"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/default_padding"
+                >
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/avatar_view"
+                    android:layout_width="@dimen/avatar_width"
+                    android:layout_height="@dimen/avatar_height"
+                    fresco:actualImageScaleType="focusCrop"
+                    fresco:backgroundImage="@mipmap/ic_avatar"
+                    fresco:fadeDuration="300"
+                    fresco:failureImage="@mipmap/ic_avatar"
+                    fresco:failureImageScaleType="focusCrop"
+                    fresco:placeholderImage="@mipmap/ic_avatar"
+                    fresco:placeholderImageScaleType="focusCrop"
+                    fresco:roundAsCircle="true" />
+
+                <EditText
+                    android:id="@+id/comment_edit"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/edit_view_height"
+                    android:layout_margin="@dimen/default_padding"
+                    android:layout_weight="1"
+                    android:background="@drawable/abc_edit_text_material"
+                    android:cursorVisible="true"
+                    android:hint="@string/hint_comment"/>
+
+                <ImageView
+                    android:id="@+id/comment_send"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="@dimen/default_padding"
+                    android:src="@mipmap/ic_send_dark" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

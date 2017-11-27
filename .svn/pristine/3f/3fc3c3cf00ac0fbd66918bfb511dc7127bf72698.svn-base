@@ -1,0 +1,12 @@
+package sg.com.conversant.swiftplayer.mvp.contact;
+
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2017/8/14.
+ */
+
+public interface ZhihuContact {
+
+
+}

@@ -1,0 +1,333 @@
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p/>
+ * Created on 2016/3/22.
+ */
+package sg.com.conversant.swiftplayer.adapter;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Point;
+import android.net.Uri;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import sg.com.conversant.swiftplayer.R;
+import sg.com.conversant.swiftplayer.activity.MediaDetailActivity;
+import sg.com.conversant.swiftplayer.mvp.ui.activity.NewsActivity;
+import sg.com.conversant.swiftplayer.sdk.module.Content;
+import sg.com.conversant.swiftplayer.sdk.module.ContentItem;
+import sg.com.conversant.swiftplayer.utils.UIUtils;
+import sg.com.conversant.swiftplayer.utils.Utils;
+import sg.com.conversant.swiftplayer.views.CirclePageIndicator;
+
+/**
+ * TODO
+ *
+ * @author Xiaodong
+
+ */
+public class MainHomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_ITEM = 1;
+
+    private Activity context;
+
+    private boolean header = false;
+
+    private List<ContentItem> posterItems;
+    private List<Content> contents;
+
+    public MainHomeAdapter(Activity context) {
+        this.context = context;
+
+        contents = new ArrayList<>();
+        posterItems = new ArrayList<>();
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+
+        if (holder instanceof HeaderHolder) {
+            HeaderHolder headerHolder = (HeaderHolder) holder;
+
+            if (posterItems != null && posterItems.size() == 1) {
+                ContentItem posterItem = posterItems.get(0);
+                headerHolder.imageHeader.setController(getDraweeController(posterItem.getThumbnailPath()));
+                headerHolder.viewPager.setVisibility(View.GONE);
+                headerHolder.circlePageIndicator.setVisibility(View.GONE);
+
+                headerHolder.newsLayout.setOnClickListener(categoryListener);
+            } else if (posterItems.size() > 1) {
+                headerHolder.imageHeader.setVisibility(View.GONE);
+                headerHolder.viewPager.setVisibility(View.VISIBLE);
+                headerHolder.circlePageIndicator.setVisibility(View.VISIBLE);
+
+                MainViewPagerAdapter viewPagerAdapter = new MainViewPagerAdapter(context);
+                viewPagerAdapter.setPosterItems(posterItems);
+                headerHolder.viewPager.setAdapter(viewPagerAdapter);
+
+                headerHolder.circlePageIndicator.setViewPager(headerHolder.viewPager);
+
+                headerHolder.viewPager.setCurrentItem(0);
+                headerHolder.newsLayout.setOnClickListener(categoryListener);
+            }
+        } else if (holder instanceof ItemHolder) {
+            ItemHolder itemHolder = (ItemHolder) holder;
+
+            Content item = contents.get(position);
+            List<ContentItem> contentItems = item.getContentItems();
+
+            Utils.setContentItemTitleBar(item.getTag(), itemHolder.itemTitleBarIcon, itemHolder.itemTitleBarText);
+
+            if (contentItems != null && contentItems.size() > 0) {
+                itemHolder.itemMainContentLayout.setVisibility(View.VISIBLE);
+                switch (contentItems.size()) {
+                    case 1:
+                        itemHolder.itemContentDraweeView1.setController(getDraweeController(contentItems.get(0).getThumbnailPath()));
+                        itemHolder.itemContentNameView1.setText(contentItems.get(0).getName());
+                        itemHolder.itemContentLayout1.setVisibility(View.VISIBLE);
+                        itemHolder.itemContentLayout2.setVisibility(View.INVISIBLE);
+                        itemHolder.itemContentLayout3.setVisibility(View.INVISIBLE);
+                        itemHolder.itemContentDraweeView1.setTag(contentItems.get(0));
+                        break;
+
+                    case 2:
+                        itemHolder.itemContentDraweeView1.setController(getDraweeController(contentItems.get(0).getThumbnailPath()));
+                        itemHolder.itemContentNameView1.setText(contentItems.get(0).getName());
+                        itemHolder.itemContentDraweeView2.setController(getDraweeController(contentItems.get(1).getThumbnailPath()));
+                        itemHolder.itemContentNameView2.setText(contentItems.get(1).getName());
+                        itemHolder.itemContentLayout1.setVisibility(View.VISIBLE);
+                        itemHolder.itemContentLayout2.setVisibility(View.VISIBLE);
+                        itemHolder.itemContentLayout3.setVisibility(View.INVISIBLE);
+                        itemHolder.itemContentDraweeView1.setTag(contentItems.get(0));
+                        itemHolder.itemContentDraweeView2.setTag(contentItems.get(1));
+                        break;
+
+                    default:
+                        itemHolder.itemContentDraweeView1.setController(getDraweeController(contentItems.get(0).getThumbnailPath()));
+                        itemHolder.itemContentNameView1.setText(contentItems.get(0).getName());
+                        itemHolder.itemContentDraweeView2.setController(getDraweeController(contentItems.get(1).getThumbnailPath()));
+                        itemHolder.itemContentNameView2.setText(contentItems.get(1).getName());
+                        itemHolder.itemContentDraweeView3.setController(getDraweeController(contentItems.get(2).getThumbnailPath()));
+                        itemHolder.itemContentNameView3.setText(contentItems.get(2).getName());
+                        itemHolder.itemContentLayout1.setVisibility(View.VISIBLE);
+                        itemHolder.itemContentLayout2.setVisibility(View.VISIBLE);
+                        itemHolder.itemContentLayout3.setVisibility(View.VISIBLE);
+                        itemHolder.itemContentDraweeView1.setTag(contentItems.get(0));
+                        itemHolder.itemContentDraweeView2.setTag(contentItems.get(1));
+                        itemHolder.itemContentDraweeView3.setTag(contentItems.get(2));
+                        break;
+                }
+
+                itemHolder.itemContentDraweeView1.setOnClickListener(onClickListener);
+                itemHolder.itemContentDraweeView2.setOnClickListener(onClickListener);
+                itemHolder.itemContentDraweeView3.setOnClickListener(onClickListener);
+
+            } else {
+                itemHolder.itemMainContentLayout.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        if (viewType == TYPE_HEADER) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.header_main_content,
+                    parent, false);
+
+            return new HeaderHolder(view);
+        }
+
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_main_content,
+                parent, false);
+
+        return new ItemHolder(view);
+    }
+
+    @Override
+    public int getItemCount() {
+        return contents.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+
+        if (position == 0 && header) {
+            return TYPE_HEADER;
+        }
+
+        return TYPE_ITEM;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    public void setHeaderItems(List<ContentItem> items) {
+        if (items != null && items.size() > 0) {
+            this.header = true;
+            contents.add(0, null);
+            posterItems.addAll(items);
+
+            notifyItemChanged(0);
+        }
+    }
+
+    public void setContentItems(List<Content> items) {
+        if (items != null) {
+            contents.addAll(items);
+
+        } else {
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public List<Content> getContents() {
+        return contents;
+    }
+
+    public void deleteContents() {
+        if (posterItems != null) {
+            posterItems.clear();
+        }
+
+        if (contents != null) {
+            contents.clear();
+        }
+
+        notifyDataSetChanged();
+    }
+
+    private DraweeController getDraweeController(String url) {
+        Uri uri = Uri.parse(url);
+        ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
+                .setProgressiveRenderingEnabled(true)
+                .build();
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setImageRequest(request)
+                .build();
+        return controller;
+    }
+
+    View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            ContentItem contentItem = (ContentItem) v.getTag();
+
+            Intent mIntent = new Intent(context, MediaDetailActivity.class);
+            mIntent.putExtra(MediaDetailActivity.INTENT_CONTENT_ITEM, contentItem);
+            context.startActivity(mIntent);
+        }
+    };
+
+    View.OnClickListener categoryListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.category_news_layout:
+                    Intent mIntent = new Intent(context, NewsActivity.class);
+                    context.startActivity(mIntent);
+                    break;
+            }
+        }
+    };
+
+    public class HeaderHolder extends RecyclerView.ViewHolder {
+        CardView card;
+        SimpleDraweeView imageHeader;
+        ViewPager viewPager;
+        CirclePageIndicator circlePageIndicator;
+
+        LinearLayout newsLayout;
+
+        public HeaderHolder(View headerView) {
+            super(headerView);
+
+            WindowManager wm = context.getWindowManager();
+            Point outSize = new Point();
+            wm.getDefaultDisplay().getSize(outSize);
+
+            int cardMargin = context.getResources().getDimensionPixelSize(R.dimen.default_padding);
+            int coverWidth = outSize.x - 2 * cardMargin;
+            int coverHeight = coverWidth * 9/16;
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(coverWidth, coverHeight);
+
+            card = (CardView) headerView.findViewById(R.id.card);
+            card.setCardBackgroundColor(UIUtils.getThemeColorFromAttrOrRes(context, R.attr.about_card, R.color.about_card));
+
+            imageHeader = (SimpleDraweeView) headerView.findViewById(R.id.image_header);
+            viewPager = (ViewPager) headerView.findViewById(R.id.viewpager);
+            imageHeader.setLayoutParams(params);
+            viewPager.setLayoutParams(params);
+
+            circlePageIndicator = (CirclePageIndicator) headerView.findViewById(R.id.viewpager_indicator);
+            newsLayout = (LinearLayout) headerView.findViewById(R.id.category_news_layout);
+        }
+    }
+
+    public class ItemHolder extends RecyclerView.ViewHolder {
+
+        LinearLayout itemMainContentLayout;
+        ImageView itemTitleBarIcon;
+        TextView itemTitleBarText;
+        LinearLayout itemContentLayout1;
+        LinearLayout itemContentLayout2;
+        LinearLayout itemContentLayout3;
+        CardView itemContentCard1;
+        CardView itemContentCard2;
+        CardView itemContentCard3;
+        SimpleDraweeView itemContentDraweeView1;
+        SimpleDraweeView itemContentDraweeView2;
+        SimpleDraweeView itemContentDraweeView3;
+        TextView itemContentNameView1;
+        TextView itemContentNameView2;
+        TextView itemContentNameView3;
+
+        public ItemHolder(View itemView) {
+            super(itemView);
+
+            itemMainContentLayout = (LinearLayout) itemView.findViewById(R.id.item_main_content_layout);
+
+            itemTitleBarIcon = (ImageView) itemView.findViewById(R.id.item_title_bar_icon);
+            itemTitleBarText = (TextView) itemView.findViewById(R.id.item_title_bar_title);
+
+            itemContentLayout1 = (LinearLayout) itemView.findViewById(R.id.item_content_layout_1);
+            itemContentCard1 = (CardView) itemView.findViewById(R.id.item_content_card_1);
+            itemContentDraweeView1 = (SimpleDraweeView) itemView.findViewById(R.id.item_content_drawee_view_1);
+            itemContentNameView1 = (TextView) itemView.findViewById(R.id.item_content_name_1);
+
+            itemContentLayout2 = (LinearLayout) itemView.findViewById(R.id.item_content_layout_2);
+            itemContentCard2 = (CardView) itemView.findViewById(R.id.item_content_card_2);
+            itemContentDraweeView2 = (SimpleDraweeView) itemView.findViewById(R.id.item_content_drawee_view_2);
+            itemContentNameView2 = (TextView) itemView.findViewById(R.id.item_content_name_2);
+
+            itemContentLayout3 = (LinearLayout) itemView.findViewById(R.id.item_content_layout_3);
+            itemContentCard3 = (CardView) itemView.findViewById(R.id.item_content_card_3);
+            itemContentDraweeView3 = (SimpleDraweeView) itemView.findViewById(R.id.item_content_drawee_view_3);
+            itemContentNameView3 = (TextView) itemView.findViewById(R.id.item_content_name_3);
+        }
+    }
+}

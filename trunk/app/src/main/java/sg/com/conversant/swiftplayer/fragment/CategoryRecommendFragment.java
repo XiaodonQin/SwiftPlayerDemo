@@ -1,0 +1,168 @@
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2016/5/3.
+ */
+package sg.com.conversant.swiftplayer.fragment;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.loopj.android.http.TextHttpResponseHandler;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import cz.msebera.android.httpclient.Header;
+import sg.com.conversant.swiftplayer.R;
+import sg.com.conversant.swiftplayer.adapter.CategoryGridAdapter;
+import sg.com.conversant.swiftplayer.sdk.API;
+import sg.com.conversant.swiftplayer.sdk.client.ProductClient;
+import sg.com.conversant.swiftplayer.sdk.module.ContentItem;
+import sg.com.conversant.swiftplayer.utils.L;
+
+/**
+ * TODO
+ *
+ * @author Xiaodong
+ */
+public class CategoryRecommendFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+    private static String LOG_TAG = "CategoryRecommendFragment";
+    private static final int LOOP_TIME = 800;
+
+    private Handler mMainHandler;
+
+    @InjectView(R.id.recycler_view)
+    RecyclerView mRecyclerView;
+
+    @InjectView(R.id.swipe_refresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private List<ContentItem> contentItems;
+    private CategoryGridAdapter mCategoryGridAdapter;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mMainHandler = new Handler();
+        contentItems = new ArrayList<>();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View mRootView = inflater.inflate(R.layout.fragment_category_recommend, container, false);
+
+        ButterKnife.inject(this, mRootView);
+
+        mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        showRefreshLayout(true);
+
+        mRecyclerView.setLayoutManager(new GridLayoutManager(mActivity, 3));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        mCategoryGridAdapter = new CategoryGridAdapter(mActivity);
+        mRecyclerView.setAdapter(mCategoryGridAdapter);
+
+        mMainHandler.postDelayed(delayRunnable, LOOP_TIME);
+
+        return mRootView;
+    }
+
+    Runnable delayRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (contentItems != null) {
+                contentItems.clear();
+            }
+            getContentData();
+            mMainHandler.removeCallbacks(this);
+        }
+    };
+
+    private void getContentData() {
+        L.i(LOG_TAG + " getContentData ");
+
+        ProductClient.get(API.GET_CATEGORY_RECOMMEND_LIST, null, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                L.e(LOG_TAG + " status code " + statusCode);
+
+                showRefreshLayout(false);
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                L.i(LOG_TAG + " status code " + statusCode);
+                showRefreshLayout(false);
+
+                contentItems = getContentItemsFromJson(responseString);
+
+                if (mCategoryGridAdapter != null) {
+
+                    Animation fadeIn = AnimationUtils.loadAnimation(mActivity, android.R.anim.slide_in_left);
+                    fadeIn.setDuration(500);
+                    mRecyclerView.setAnimation(fadeIn);
+
+                    mCategoryGridAdapter.deleteAllItems();
+
+                    mCategoryGridAdapter.setContentItems(contentItems);
+                }
+            }
+        });
+    }
+
+    private List<ContentItem> getContentItemsFromJson(String json) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<List<ContentItem>>(){}.getType();
+        return gson.fromJson(json, type);
+    }
+
+    @Override
+    public void onRefresh() {
+        showRefreshLayout(true);
+
+        mMainHandler.postDelayed(delayRunnable, LOOP_TIME);
+    }
+
+    private void showRefreshLayout(boolean show) {
+        if (show) {
+            mSwipeRefreshLayout.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    mSwipeRefreshLayout.setRefreshing(true);
+                }
+            });
+        } else {
+            mSwipeRefreshLayout.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        }
+
+    }
+}

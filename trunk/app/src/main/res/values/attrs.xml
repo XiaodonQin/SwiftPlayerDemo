@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="About">
+        <attr name="about_card" format="color|reference"/>
+    </declare-styleable>
+    <declare-styleable name="DrawInsetsFrameLayout">
+        <attr name="insetBackground" format="reference|color"/>
+    </declare-styleable>
+
+    <declare-styleable name="AboutLibraries">
+        <attr name="about_libraries_window_background" format="color|reference"/>
+        <attr name="about_libraries_card" format="color|reference"/>
+        <attr name="about_libraries_title_openSource" format="color|reference"/>
+        <attr name="about_libraries_text_openSource" format="color|reference"/>
+        <attr name="about_libraries_special_button_openSource" format="color|reference"/>
+        <attr name="about_libraries_dividerDark_openSource" format="color|reference"/>
+        <attr name="about_libraries_dividerLight_openSource" format="color|reference"/>
+    </declare-styleable>
+
+    <string-array name="CategoryHot">
+        <item>@string/category_hot</item>
+        <item>@string/category_hot_favorite</item>
+        <item>@string/category_hot_new</item>
+    </string-array>
+
+    <string-array name="CategoryArea">
+        <item>@string/category_area</item>
+        <item>@string/category_area_inland</item>
+        <item>@string/category_area_hk</item>
+        <item>@string/category_area_kr</item>
+        <item>@string/category_area_us</item>
+        <item>@string/category_area_jp</item>
+        <item>@string/category_area_th</item>
+        <item>@string/category_area_tw</item>
+        <item>@string/category_area_other</item>
+    </string-array>
+
+    <string-array name="CategoryType">
+        <item>@string/category_type</item>
+        <item>@string/category_type_homemade</item>
+        <item>@string/category_type_love</item>
+        <item>@string/category_type_history</item>
+        <item>@string/category_type_martial</item>
+        <item>@string/category_type_costume</item>
+        <item>@string/category_type_time</item>
+        <item>@string/category_type_rural</item>
+        <item>@string/category_type_star</item>
+        <item>@string/category_type_suspense</item>
+        <item>@string/category_type_science</item>
+        <item>@string/category_type_comedy</item>
+        <item>@string/category_type_palace</item>
+        <item>@string/category_type_trade</item>
+        <item>@string/category_type_myth</item>
+        <item>@string/category_type_timetravel</item>
+        <item>@string/category_type_crime</item>
+        <item>@string/category_type_spy</item>
+        <item>@string/category_type_cantonese</item>
+        <item>@string/category_type_1080</item>
+        <item>@string/category_type_youth</item>
+        <item>@string/category_type_family</item>
+        <item>@string/category_type_army</item>
+        <item>@string/category_type_story</item>
+        <item>@string/category_type_city</item>
+        <item>@string/category_type_webshows</item>
+    </string-array>
+
+    <string-array name="CategoryYear">
+        <item>@string/category_year</item>
+        <item>@string/category_year_2016</item>
+        <item>@string/category_year_2015</item>
+        <item>@string/category_year_2014</item>
+        <item>@string/category_year_2013</item>
+        <item>@string/category_year_2012</item>
+        <item>@string/category_year_2011</item>
+        <item>@string/category_year_2000_2010</item>
+        <item>@string/category_year_90</item>
+        <item>@string/category_year_80</item>
+        <item>@string/category_year_earlier</item>
+    </string-array>
+
+</resources>

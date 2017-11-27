@@ -1,0 +1,326 @@
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2016/4/14.
+ */
+package sg.com.conversant.swiftplayer.fragment;
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.loopj.android.http.TextHttpResponseHandler;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
+import sg.com.conversant.swiftplayer.R;
+import sg.com.conversant.swiftplayer.adapter.MainContentAdapter;
+import sg.com.conversant.swiftplayer.sdk.API;
+import sg.com.conversant.swiftplayer.sdk.client.ProductClient;
+import sg.com.conversant.swiftplayer.sdk.module.Content;
+import sg.com.conversant.swiftplayer.sdk.module.ContentItem;
+import sg.com.conversant.swiftplayer.utils.L;
+
+/**
+ * TODO
+ *
+ * @author Xiaodong
+
+ */
+public class HomeFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+    private static final String LOG_TAG = "HomeFragment";
+    private View mRootView;
+
+    private static final int LOOP_TIME = 800;
+
+    private Handler mMainHandler;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private RecyclerView mRecyclerView;
+
+    private MainContentAdapter mMainContentAdapter;
+
+    private List<ContentItem> posters;
+    private List<Content> contents;
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        posters = new ArrayList<>();
+        contents = new ArrayList<>();
+        mMainHandler = new Handler();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        mRootView = inflater.inflate(R.layout.fragment_home, container, false);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swipe_refresh);
+        mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        showRefreshLayout(true);
+
+        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        mMainContentAdapter = new MainContentAdapter(mActivity);
+        mRecyclerView.setAdapter(mMainContentAdapter);
+
+        mMainHandler.postDelayed(delayRunnable, LOOP_TIME);
+
+        return mRootView;
+    }
+
+    Runnable delayRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (contents != null) {
+                contents.clear();
+            }
+            getPosterData();
+            mMainHandler.removeCallbacks(this);
+        }
+    };
+
+    private void getPosterData() {
+        L.i(LOG_TAG + " getPosterData ");
+
+        ProductClient.get(API.GET_POSTER_LIST, null, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                L.e(LOG_TAG + " status code " + statusCode);
+
+                getRecommendData();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                L.i(LOG_TAG + " status code " + statusCode);
+
+                posters = getJsonContents(responseString);
+
+                getRecommendData();
+            }
+        });
+
+    }
+
+    private List<ContentItem> getJsonContents(String json) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<List<ContentItem>>(){}.getType();
+        return gson.fromJson(json, type);
+    }
+
+    private void getRecommendData() {
+        L.i(LOG_TAG + " getRecommendData ");
+
+        ProductClient.get(API.GET_RECOMMEND_LIST, null, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                L.e(LOG_TAG + " status code " + statusCode);
+
+                getSeriesData();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                L.i(LOG_TAG + " status code " + statusCode);
+
+                List<ContentItem> recommendItems = getJsonContents(responseString);
+                Content recommends = new Content();
+                recommends.setTag(API.TAG.TAG_RECOMMEND);
+                recommends.setContentItems(recommendItems);
+
+                contents.add(recommends);
+
+                getSeriesData();
+
+            }
+        });
+    }
+
+    private void getSeriesData() {
+        L.i(LOG_TAG + " getSeriesData ");
+
+        ProductClient.get(API.GET_SERIES_LIST, null, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                L.e(LOG_TAG + " status code " + statusCode);
+
+                getMovieData();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                L.i(LOG_TAG + " status code " + statusCode);
+
+                List<ContentItem> seriesItems = getJsonContents(responseString);
+                Content series = new Content();
+                series.setTag(API.TAG.TAG_SERIES);
+                series.setContentItems(seriesItems);
+
+                contents.add(series);
+
+                getMovieData();
+
+            }
+        });
+    }
+
+    private void getMovieData() {
+        L.i(LOG_TAG + " getMovieData ");
+
+        ProductClient.get(API.GET_MOVIE_LIST, null, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                L.e(LOG_TAG + " status code " + statusCode);
+
+                getLiveData();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                L.i(LOG_TAG + " status code " + statusCode);
+
+                List<ContentItem> movieItems = getJsonContents(responseString);
+                Content movies = new Content();
+                movies.setTag(API.TAG.TAG_MOVIE);
+                movies.setContentItems(movieItems);
+
+                contents.add(movies);
+
+                getLiveData();
+
+            }
+        });
+    }
+
+    private void getLiveData() {
+        L.i(LOG_TAG + " getLiveData ");
+
+        ProductClient.get(API.GET_LIVE_LIST, null, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                L.e(LOG_TAG + " status code " + statusCode);
+
+                getMusicData();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                L.i(LOG_TAG + " status code " + statusCode);
+
+                List<ContentItem> liveItems = getJsonContents(responseString);
+                Content lives = new Content();
+                lives.setTag(API.TAG.TAG_LIVE);
+                lives.setContentItems(liveItems);
+
+                contents.add(lives);
+
+                getMusicData();
+
+            }
+        });
+    }
+
+    private void getMusicData() {
+        L.i(LOG_TAG + " getMusicData ");
+
+        ProductClient.get(API.GET_MUSIC_LIST, null, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                L.e(LOG_TAG + " status code " + statusCode);
+
+                mSwipeRefreshLayout.setRefreshing(false);
+
+                if (statusCode == 0) {
+                    Toast toast = Toast.makeText(mActivity, R.string.no_network, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                }
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                L.i(LOG_TAG + " status code " + statusCode);
+
+                List<ContentItem> musicItems = getJsonContents(responseString);
+                Content music = new Content();
+                music.setTag(API.TAG.TAG_MUSIC);
+                music.setContentItems(musicItems);
+
+                contents.add(music);
+
+                setupAdapter();
+
+            }
+        });
+    }
+
+    private void setupAdapter() {
+        if (mMainContentAdapter != null) {
+            mMainContentAdapter.deleteContents();
+
+//            Animation fadeIn = AnimationUtils.loadAnimation(mActivity, android.R.anim.slide_in_left);
+//            fadeIn.setDuration(500);
+//            mRecyclerView.setAnimation(fadeIn);
+
+            mSwipeRefreshLayout.setRefreshing(false);
+
+            mMainContentAdapter.setHeaderItems(posters);
+            mMainContentAdapter.setContentItems(contents);
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+
+        showRefreshLayout(true);
+
+        mMainHandler.postDelayed(delayRunnable, LOOP_TIME);
+    }
+
+    private void showRefreshLayout(boolean show) {
+        if (show) {
+            mSwipeRefreshLayout.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    mSwipeRefreshLayout.setRefreshing(true);
+                }
+            });
+        } else {
+            mSwipeRefreshLayout.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        }
+
+    }
+}

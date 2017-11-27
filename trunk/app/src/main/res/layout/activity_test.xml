@@ -1,0 +1,71 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <!--<io.karim.MaterialTabs-->
+    <!--android:id="@+id/material_tabs"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="48dp"-->
+    <!--android:background="?attr/colorPrimary"-->
+    <!--app:mtSameWeightTabs="true"-->
+    <!--app:mtPaddingMiddle="false"-->
+    <!--/>-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!--android:background="?attr/colorPrimary"-->
+        <!--android:textColor="#ffffffff"-->
+        <!--app:mtIndicatorColor="#ffffffff"-->
+        <!--app:mtTextColorSelected="#ffffffff"-->
+        <io.karim.MaterialTabs
+            android:id="@+id/material_tabs"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:textColor="@color/black_light_2"
+            app:mtIndicatorColor="@color/colorAccent"
+            app:mtIndicatorHeight="2dp"
+            app:mtMrlRippleAlpha="0.2"
+            app:mtMrlRippleColor="#ffffffff"
+            app:mtMrlRippleDelayClick="false"
+            app:mtMrlRippleDiameter="20.0dp"
+            app:mtMrlRippleDuration="250"
+            app:mtMrlRippleFadeDuration="100"
+            app:mtMrlRippleHighlightColor="#40ffffff"
+            app:mtMrlRippleInAdapter="false"
+            app:mtMrlRippleOverlay="false"
+            app:mtMrlRipplePersistent="false"
+            app:mtMrlRippleRoundedCorners="0dp"
+            app:mtPaddingMiddle="false"
+            app:mtSameWeightTabs="true"
+            app:mtTabPaddingLeftRight="12dp"
+            app:mtTextAllCaps="true"
+            app:mtTextColorSelected="@color/black_light"
+            app:mtUnderlineColor="@color/gray_light_2"
+            app:mtUnderlineHeight="0.5dp" />
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@mipmap/ic_channel"
+            android:background="@color/white"/>
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:context=".MainActivity" />
+
+</LinearLayout>

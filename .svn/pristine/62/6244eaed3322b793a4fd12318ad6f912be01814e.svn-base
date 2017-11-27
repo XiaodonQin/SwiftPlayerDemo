@@ -1,0 +1,222 @@
+package sg.com.conversant.swiftplayer.mvp.ui.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
+
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import sg.com.conversant.swiftplayer.R;
+import sg.com.conversant.swiftplayer.mvp.OnItemClickListener;
+import sg.com.conversant.swiftplayer.mvp.data.ZhihuDailyNewsDetail;
+import sg.com.conversant.swiftplayer.mvp.ui.adapter.NewsAdapter;
+import sg.com.conversant.swiftplayer.mvp.contact.ZhihuContact;
+import sg.com.conversant.swiftplayer.mvp.data.ZhihuDailyNews;
+import sg.com.conversant.swiftplayer.mvp.data.ZhihuDailyNewsRepository;
+import sg.com.conversant.swiftplayer.mvp.data.local.ZhihuDailyNewsLocalDataSource;
+import sg.com.conversant.swiftplayer.mvp.data.remote.ZhihuDailyNewsRemoteDataSource;
+import sg.com.conversant.swiftplayer.mvp.presenter.ZhihuDailyPresenter;
+import sg.com.conversant.swiftplayer.sdk.API;
+import sg.com.conversant.swiftplayer.utils.L;
+
+/**
+ * Copyright (c) 2012 Conversant Solutions. All rights reserved.
+ * <p>
+ * Created on 2017/8/11.
+ */
+
+public class NewsActivity extends AppCompatActivity implements ZhihuContact.View,
+        OnItemClickListener<ZhihuDailyNews>, SwipeRefreshLayout.OnRefreshListener {
+    private static String LOG_TAG = NewsActivity.class.getSimpleName();
+
+    private ZhihuContact.Presenter mPresenter;
+    private ZhihuDailyNewsRepository mDataRepository;
+
+    @InjectView(R.id.toolbar)
+    Toolbar toolbar;
+
+    @InjectView(R.id.toolbar_title)
+    TextView toolbarTitle;
+
+    @InjectView(R.id.swipe_refresh)
+    SwipeRefreshLayout refreshLayout;
+
+    @InjectView(R.id.recycler_view)
+    RecyclerView recyclerView;
+
+    private int mYear, mMonth, mDay;
+    private boolean mIsFirstLoad = true;
+    private NewsAdapter newsAdapter;
+    private boolean responseOK = false;
+    private int lastVisibleItem = 0;
+    private LinearLayoutManager manager;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_news);
+        ButterKnife.inject(this);
+
+        initData();
+        initViews();
+        mDataRepository = ZhihuDailyNewsRepository.getInstance(
+                new ZhihuDailyNewsRemoteDataSource(),
+                new ZhihuDailyNewsLocalDataSource(this)
+        );
+        setPresenter(new ZhihuDailyPresenter(this, mDataRepository));
+    }
+
+    @Override
+    public void setPresenter(ZhihuContact.Presenter presenter) {
+        if (presenter != null) {
+            this.mPresenter = presenter;
+        }
+    }
+
+    private void initData() {
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("GMT+08"));
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+    }
+
+    @Override
+    public void initViews() {
+        setSupportActionBar(toolbar);
+        toolbar.setContentInsetsAbsolute(0, 0);
+        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbarTitle.setText(R.string.tab_news);
+
+        refreshLayout.setOnRefreshListener(this);
+        manager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addOnScrollListener(onScrollListener);
+
+        newsAdapter = new NewsAdapter();
+        newsAdapter.setOnItemClickListener(this);
+
+        recyclerView.setAdapter(newsAdapter);
+    }
+
+    @Override
+    public void onRefresh() {
+        mPresenter.start();
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("GMT+08"));
+        mPresenter.loadData(true, false, c.getTimeInMillis());
+    }
+
+    @Override
+    public boolean isActive() {
+        return true;
+    }
+
+    @Override
+    public void setLoadingIndicator(boolean active) {
+        refreshLayout.post(() -> refreshLayout.setRefreshing(active));
+    }
+
+    @Override
+    public void showResult(@NonNull List<ZhihuDailyNews> list) {
+        L.i(LOG_TAG + " current thread: " + Thread.currentThread().getName());
+        newsAdapter.setZhihuNews(list);
+    }
+
+    @Override
+    public void setResponseOK(boolean responseOK) {
+        this.responseOK = responseOK;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (toolbar != null) toolbar.getBackground().setAlpha(255);
+
+        mPresenter.start();
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("GMT+08"));
+        c.set(mYear, mMonth, mDay);
+        if (mIsFirstLoad) {
+            mPresenter.loadData(true, false, c.getTimeInMillis());
+            mIsFirstLoad = false;
+        } else {//退到后台后回来不需要重新加载数据
+            mPresenter.loadData(false, false, c.getTimeInMillis());
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZhihuDailyNewsRepository.destroyRepository();
+    }
+
+    RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+
+            //0：当前屏幕停止滚动；1时：屏幕在滚动 且 用户仍在触碰或手指还在屏幕上；2时：随用户的操作，屏幕上产生的惯性滑动；
+            // 滑动状态停止并且剩余少于两个item时，自动加载下一页
+            L.i(LOG_TAG + " onScrollListener.getItemCount(): " + newsAdapter.getItemCount());
+            if (newState == RecyclerView.SCROLL_STATE_IDLE
+                    && lastVisibleItem + 2 >= newsAdapter.getItemCount()
+//                    && zhihuNewsAdapter.isLoadMore() //不需要分页
+                    ) {
+                if (responseOK) {
+                    L.i(LOG_TAG + " ======== load more data ========");
+                    loadMore();
+                }
+            }
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            //获取加载的最后一个可见视图在适配器的位置。
+            lastVisibleItem = manager.findLastVisibleItemPosition();
+        }
+    };
+
+    @Override
+    public void onItemClick(ZhihuDailyNews zhihuDailyNews, int position) {
+        zhihuDailyNews.setRead(true);
+
+        if (mDataRepository != null) {
+            mDataRepository.update(zhihuDailyNews);
+        }
+
+        if (newsAdapter != null) {
+            newsAdapter.notifyItemChanged(position);
+        }
+
+        Intent intent = new Intent(this, NewsDetailActivity.class);
+        intent.putExtra(API.PARAMS_ZHIHU.INTENT_NEWS_ID, zhihuDailyNews.getId());
+        startActivity(intent);
+    }
+
+    private void loadMore() {
+        Calendar c = Calendar.getInstance();
+        c.set(mYear, mMonth, --mDay);
+        mPresenter.loadData(true, false, c.getTimeInMillis());
+    }
+
+    @Override
+    public void showResult(@NonNull ZhihuDailyNewsDetail detail) {
+
+    }
+}

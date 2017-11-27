@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">24dp</dimen>
+    <dimen name="activity_vertical_margin">24dp</dimen>
+
+    <dimen name="default_margin">32dp</dimen>
+
+    <dimen name="default_padding">12dp</dimen>
+    <dimen name="default_padding_1">6dp</dimen>
+    <dimen name="default_padding_2">24dp</dimen>
+    <dimen name="default_padding_3">15dp</dimen>
+    <dimen name="default_padding_4">36dp</dimen>
+
+    <dimen name="view_height_size">1dp</dimen>
+
+    <!-- Samsung SM-T211 600x1024dp -->
+    <!-- poster 16:9 -->
+    <dimen name="item_poster_width">576dp</dimen>
+    <dimen name="item_poster_height">324dp</dimen>
+    <dimen name="preview_height">337.5dp</dimen>
+
+    <!-- 16:9 -->
+    <dimen name="item_content_width">184dp</dimen>
+    <dimen name="item_content_height">103.5dp</dimen>
+
+    <!-- 3:4 -->
+    <dimen name="item_grid_width">184dp</dimen>
+    <dimen name="item_grid_height">245dp</dimen>
+
+    <dimen name="item_view_height">70dp</dimen>
+</resources>
